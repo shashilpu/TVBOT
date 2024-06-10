@@ -3,7 +3,7 @@ using TVBot.Repository.SqlServer;
 
 namespace TVBot.Services.SqlServer
 {
-    public class TradeOpportunityService
+    public class TradeOpportunityService : ITradeOpportunityService
     {
         private readonly ISQLServer<TradeOpportunity> _repository;
         public TradeOpportunityService(ISQLServer<TradeOpportunity> repository)

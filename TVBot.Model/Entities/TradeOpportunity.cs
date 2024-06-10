@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
@@ -7,12 +8,12 @@ namespace TVBot.Model.Entities
     [Table(name:nameof(TradeOpportunity))]
     public class TradeOpportunity
     {
-        [Key]
+        [Key]       
         public int Id { get; set; }
         /// <summary>
         /// The date and time (UTC) the request was added to the db.
         /// </summary>
-        public DateTime CrossOverDateTime { get; set; }
+        public DateTime CrossOverDateTime { get; set; } = DateTime.Now;
         /// <summary>
         /// Organization Identifier
         /// </summary>

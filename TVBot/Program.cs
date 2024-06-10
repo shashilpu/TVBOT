@@ -1,7 +1,11 @@
-﻿
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TVBot.Model.Entities;
+using TVBot.Repository.SqlServer;
+using TVBot.Services.SqlServer;
+using TVBot.SqlServer;
 
 
 
@@ -17,12 +21,12 @@ namespace TVBot
         public static IHostBuilder CreateHostBuilder(string[] args) =>
        Host.CreateDefaultBuilder(args)
         .UseWindowsService(option=>option.ServiceName="TVBotService")
-        .ConfigureServices((hostContext, services) =>
+        .ConfigureServices((context, services) =>
         {
-            //services.AddDbContext<DocumentContext>(options =>
-            //   options.UseSqlite(hostContext.Configuration.GetConnectionString("DB_CONNECTION_STRING")));
-            //services.AddTransient<IDocumentRepository, DocumentRepository>();
-            //services.AddTransient<IDocumentService, DocumentService>();
+            services.AddDbContext<SqlServerDbContext>(options =>
+               options.UseSqlServer(context.Configuration.GetConnectionString("DB_CONNECTION_STRING")));
+            services.AddTransient(typeof(ISQLServer<TradeOpportunity>), typeof(SQLServer<TradeOpportunity>));
+            services.AddTransient<TradeOpportunityService>();
             services.AddHostedService<Worker>();
 
         });

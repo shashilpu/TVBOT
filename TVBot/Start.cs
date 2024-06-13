@@ -1,4 +1,5 @@
 ﻿using TVBot.Model.Entities;
+using TVBot.Services.Factory;
 using TVBot.Services.SqlServer;
 using TVBot.Utility;
 
@@ -6,7 +7,7 @@ namespace TVBot
 {
     internal static class Start
     {
-        public static void Begin(ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
+        public static void Begin(ISQLServerServiceFactory tradeOpportunityService)
         {
             int count = 0;
             var appPath = AppDomain.CurrentDomain.BaseDirectory;

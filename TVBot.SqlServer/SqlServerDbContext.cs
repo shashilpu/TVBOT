@@ -8,6 +8,7 @@ namespace TVBot.SqlServer
         {
 
         }       
-        DbSet<TradeOpportunity> Tradeopportunities { get; set; }    
+        DbSet<TradeOpportunity> Tradeopportunities { get; set; }   
+        DbSet<TradeExecution> TradeExecutions { get; set; }
     }
 }

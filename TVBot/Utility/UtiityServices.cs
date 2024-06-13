@@ -1,7 +1,7 @@
 ﻿using TVBot.Model.Entities;
 using TVBot.Models;
 using TVBot.Services;
-using TVBot.Services.SqlServer;
+using TVBot.Services.Factory;
 
 namespace TVBot.Utility
 {
@@ -21,36 +21,36 @@ namespace TVBot.Utility
         static Dictionary<string, decimal> trackedElementsEMAOneDay = new Dictionary<string, decimal>();
        
         static Dictionary<string, decimal> trackedElementsMACDOneDay = new Dictionary<string, decimal>();
-        public static void EMA15MReversal(string ema15MQueryFilePath, ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
+        public static void EMA15MReversal(string ema15MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchAndSend(ema15MQueryFilePath,  trackedElementsEMA15Minutes, "15M_EMA", tradeOpportunityService);
         }
-        public static void EMA30MReversal(string ema30MQueryFilePath, ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
+        public static void EMA30MReversal(string ema30MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchAndSend(ema30MQueryFilePath,  trackedElementsEMA30Minutes, "30M_EMA", tradeOpportunityService);
         }
-        public static void EMAOneHourReversal(string ema1HQueryFilePath, ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
+        public static void EMAOneHourReversal(string ema1HQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchAndSend(ema1HQueryFilePath,  trackedElementsEMAOneHour, "1H_EMA", tradeOpportunityService);
         }
 
-        public static void EMATwoHourReversal(string ema2HQueryFilePath, ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
+        public static void EMATwoHourReversal(string ema2HQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchAndSend(ema2HQueryFilePath,  trackedElementsEMATwoHour, "2H_EMA", tradeOpportunityService);
         }
-        public static void EMAFourHourReversal(string ema4HQueryFilePath, ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
+        public static void EMAFourHourReversal(string ema4HQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchAndSend(ema4HQueryFilePath,  trackedElementsEMAFourHour, "4H_EMA", tradeOpportunityService);
         }
-        public static void EMAOneDayReversal(string emaDQueryFilePath, ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
+        public static void EMAOneDayReversal(string emaDQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchAndSend(emaDQueryFilePath,  trackedElementsEMAOneDay, "1D_EMA", tradeOpportunityService);
         }
-        public static void MacdOneDayReversal(string macdDQueryFilePath, ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
+        public static void MacdOneDayReversal(string macdDQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchAndSend(macdDQueryFilePath,  trackedElementsMACDOneDay, "1D_MACD", tradeOpportunityService);
         }
-        private static void SearchAndSend(string queryPath, Dictionary<string, decimal> trackedElements, string algoName, ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
+        private static void SearchAndSend(string queryPath, Dictionary<string, decimal> trackedElements, string algoName, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchResponse res = APIServices.Screener(queryPath).Result;
             if (res.totalCount > 0)
@@ -66,7 +66,7 @@ namespace TVBot.Utility
                         trackedElements.Add(tickerName, price);
                         var Message = algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " M T.= " +  trackedElements.Count;
                         APIServices.SendToTeligrams(Message);
-                        tradeOpportunityService.AddTradeOpportunity(new TradeOpportunity
+                        tradeOpportunityService.Create<TradeOpportunity>().Add(new TradeOpportunity
                         {
                             CrossOverDateTime = DateTime.Now,
                             Ticker = tickerName,
@@ -74,7 +74,20 @@ namespace TVBot.Utility
                             Price = price,
                             AlgoName = algoName,
                             Volume = volume
-                        });                       
+                        });
+                        tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
+                        {
+                            TradeOpportunityId = 367,
+                            ExecutionDateTime = DateTime.Now,
+                            ExecutionPrice = price,
+                            Quantity = 1,
+                            InTrade = true,
+                            TradeType = "Buy",
+                            Status = "Open",
+                            ProfitLoss = 0,
+                            ExecutionFee = 0,
+                            Notes = "Initial Buy"
+                        });
                     }
                 }
             }

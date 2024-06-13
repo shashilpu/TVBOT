@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TVBot.Model.Entities;
+using TVBot.Services.Factory;
 using TVBot.Services.SqlServer;
 
 namespace TVBot
@@ -9,18 +10,18 @@ namespace TVBot
     {
         private readonly ILogger<Worker> _logger;
         private const int DelayInMilliseconds = 10000;
-        private readonly ITradeOpportunityService<TradeOpportunity> _tradeOpportunityService;
-        public Worker(ILogger<Worker> logger, ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
+        private readonly ISQLServerServiceFactory _sqlserviceFactory;
+        public Worker(ILogger<Worker> logger, ISQLServerServiceFactory sqlserviceFactory)
         {
             _logger = logger;
-            _tradeOpportunityService = tradeOpportunityService;
+            _sqlserviceFactory = sqlserviceFactory;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
 
-                Start.Begin(_tradeOpportunityService);
+                Start.Begin(_sqlserviceFactory);
                
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(DelayInMilliseconds, stoppingToken);

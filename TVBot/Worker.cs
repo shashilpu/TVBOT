@@ -9,8 +9,8 @@ namespace TVBot
     {
         private readonly ILogger<Worker> _logger;
         private const int DelayInMilliseconds = 10000;
-        private readonly ITradeOpportunityService _tradeOpportunityService;
-        public Worker(ILogger<Worker> logger, ITradeOpportunityService tradeOpportunityService)
+        private readonly ITradeOpportunityService<TradeOpportunity> _tradeOpportunityService;
+        public Worker(ILogger<Worker> logger, ITradeOpportunityService<TradeOpportunity> tradeOpportunityService)
         {
             _logger = logger;
             _tradeOpportunityService = tradeOpportunityService;
@@ -21,6 +21,7 @@ namespace TVBot
             {
 
                 Start.Begin(_tradeOpportunityService);
+               
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(DelayInMilliseconds, stoppingToken);
             }

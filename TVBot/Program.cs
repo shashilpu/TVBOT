@@ -26,7 +26,7 @@ namespace TVBot
             services.AddDbContext<SqlServerDbContext>(options =>
                options.UseSqlServer(context.Configuration.GetConnectionString("DB_CONNECTION_STRING")),ServiceLifetime.Singleton);
             services.AddTransient(typeof(ISQLServer<TradeOpportunity>), typeof(SQLServer<TradeOpportunity>));
-            services.AddTransient<ITradeOpportunityService,TradeOpportunityService>();
+            services.AddTransient<ITradeOpportunityService<TradeOpportunity>,TradeOpportunityService<TradeOpportunity>>();
             services.AddHostedService<Worker>();
             services.AddMemoryCache();
 

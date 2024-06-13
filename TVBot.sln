@@ -5,15 +5,13 @@ VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVBot", "TVBot\TVBot.csproj", "{A68C05EC-4CF9-40BB-9AD1-A2067A6E571F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsService1", "WindowsService1\WindowsService1.csproj", "{FE153C25-A846-43E1-BAF0-662CFD43F826}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVBot.SqlServer", "TVBot.SqlServer\TVBot.SqlServer.csproj", "{4984F8D7-7975-4C77-B7F1-6F39A725FDB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVBot.SqlServer", "TVBot.SqlServer\TVBot.SqlServer.csproj", "{4984F8D7-7975-4C77-B7F1-6F39A725FDB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVBot.Model", "TVBot.Model\TVBot.Model.csproj", "{3A029D72-D6BE-481A-A189-F423521C494A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVBot.Model", "TVBot.Model\TVBot.Model.csproj", "{3A029D72-D6BE-481A-A189-F423521C494A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVBot.Repository", "TVBot.Repository\TVBot.Repository.csproj", "{381210B1-F0DD-4146-A42E-8C689B4ED165}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVBot.Repository", "TVBot.Repository\TVBot.Repository.csproj", "{381210B1-F0DD-4146-A42E-8C689B4ED165}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVBot.Services", "TVBot.Services\TVBot.Services.csproj", "{2556ABCE-0670-44F4-8F50-0C2C2DBD3743}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVBot.Services", "TVBot.Services\TVBot.Services.csproj", "{2556ABCE-0670-44F4-8F50-0C2C2DBD3743}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,18 +35,6 @@ Global
 		{A68C05EC-4CF9-40BB-9AD1-A2067A6E571F}.Release|x64.Build.0 = Release|x64
 		{A68C05EC-4CF9-40BB-9AD1-A2067A6E571F}.Release|x86.ActiveCfg = Release|x86
 		{A68C05EC-4CF9-40BB-9AD1-A2067A6E571F}.Release|x86.Build.0 = Release|x86
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Debug|x64.Build.0 = Debug|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Debug|x86.Build.0 = Debug|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Release|x64.ActiveCfg = Release|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Release|x64.Build.0 = Release|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Release|x86.ActiveCfg = Release|Any CPU
-		{FE153C25-A846-43E1-BAF0-662CFD43F826}.Release|x86.Build.0 = Release|Any CPU
 		{4984F8D7-7975-4C77-B7F1-6F39A725FDB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4984F8D7-7975-4C77-B7F1-6F39A725FDB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4984F8D7-7975-4C77-B7F1-6F39A725FDB0}.Debug|x64.ActiveCfg = Debug|Any CPU

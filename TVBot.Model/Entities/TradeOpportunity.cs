@@ -21,11 +21,11 @@ namespace TVBot.Model.Entities
         /// <summary>
         /// Store Location Identifier
         /// </summary>
-        public string PercentChange { get; set; }
+        public decimal PercentChange { get; set; }
         /// <summary>
         /// Correlation identifier
         /// </summary>
-        public string? Price { get; set; }
+        public decimal? Price { get; set; }
         /// <summary>
         /// File content type
         /// </summary>

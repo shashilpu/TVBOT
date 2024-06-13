@@ -1,10 +1,11 @@
-﻿using TVBot.Utility;
+﻿using TVBot.Services.SqlServer;
+using TVBot.Utility;
 
 namespace TVBot
 {
     internal static class Start
     {
-        public static void Begin()
+        public static void Begin(ITradeOpportunityService tradeOpportunityService)
         {
             int count = 0;
             var appPath = AppDomain.CurrentDomain.BaseDirectory;
@@ -19,19 +20,19 @@ namespace TVBot
 
             while (true)
             {               
-                UtiityServices.EMA15MReversal(ema15MQueryFilePath);
+                UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
                 Thread.Sleep(10000);
-                UtiityServices.EMA30MReversal(ema30MQueryFilePath);
+                UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
                 Thread.Sleep(10000);
-                UtiityServices.EMAOneHourReversal(ema1HQueryFilePath);
+                UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
                 Thread.Sleep(10000);
-                UtiityServices.EMATwoHourReversal(ema2HQueryFilePath);
+                UtiityServices.EMATwoHourReversal(ema2HQueryFilePath,tradeOpportunityService);
                 Thread.Sleep(10000);
-                UtiityServices.EMAFourHourReversal(ema4HQueryFilePath);
+                UtiityServices.EMAFourHourReversal(ema4HQueryFilePath, tradeOpportunityService);
                 Thread.Sleep(10000);
-                UtiityServices.EMAOneDayReversal(emaDQueryFilePath);
+                UtiityServices.EMAOneDayReversal(emaDQueryFilePath, tradeOpportunityService);
                 Thread.Sleep(10000);
-                UtiityServices.MacdOneDayReversal(macdDQueryFilePath);
+                UtiityServices.MacdOneDayReversal(macdDQueryFilePath, tradeOpportunityService);
                 Thread.Sleep(10000);
                 count++;
                 Console.WriteLine(count);

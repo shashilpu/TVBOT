@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using TVBot.Model;
 using TVBot.Models;
 
 
@@ -80,7 +81,7 @@ namespace TVBot.Services
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error: {ex.Message}");
-                    
+
                 }
 
 
@@ -111,6 +112,32 @@ namespace TVBot.Services
                 {
                     Console.WriteLine($"Error sending message: {ex.Message}");
                     SendToTeligram(ex.Message);
+                }
+            }
+        }
+        // write a get method to get the data from the api url is https://www.nseindia.com/api/quote-equity?symbol=CIPLA
+        public static async Task<MCPriceInfo> GetCurrentPrices(string scIdList,string scId)
+        {
+            string url = $"https://api.moneycontrol.com/mcapi/v1/stock/get-stock-price?scIdList={scIdList}&scId={scId}";// + ticker;
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.DefaultRequestHeaders.Add("Origin", "https://moneycontrol.com");
+                client.DefaultRequestHeaders.Add("Referer", "https://moneycontrol.com/");
+                try
+                {
+                    HttpResponseMessage response = client.GetAsync(url).Result;
+                    response.EnsureSuccessStatusCode();
+                    //string responseBody = await response.Content.ReadAsStringAsync();
+                    //return responseBody;
+                    var searchResponse = await JsonSerializer.DeserializeAsync<MCPriceInfo>(response.Content.ReadAsStream(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    return searchResponse;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending message: {ex.Message}");
+                   //  return ex.Message;
+                   return null;
                 }
             }
         }

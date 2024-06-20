@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVBot.SqlServer;
 
@@ -11,9 +12,11 @@ using TVBot.SqlServer;
 namespace TVBot.SqlServer.Migrations
 {
     [DbContext(typeof(SqlServerDbContext))]
-    partial class SqlServerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240614100413_addedNEWColumnInTAbel")]
+    partial class addedNEWColumnInTAbel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,10 +45,6 @@ namespace TVBot.SqlServer.Migrations
                     b.Property<bool>("InTrade")
                         .HasColumnType("bit");
 
-                    b.Property<string>("MCTicker")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
@@ -58,18 +57,12 @@ namespace TVBot.SqlServer.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("TargetPercentGain")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int>("TradeOpportunityId")
                         .HasColumnType("int");
 
                     b.Property<string>("TradeType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TrargetPrice")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("TradeExecutionId");
 

@@ -1,1 +1,2 @@
-ddd
+VS code Command 
+dotnet ef migrations add addednewcolumn --verbose --project .\TVBot.SqlServer   --startup-project .\TVBot\

@@ -17,10 +17,13 @@ namespace TVBot.Model.Entities
         public decimal ExecutionPrice { get; set; }
         public decimal Quantity { get; set; }
         public bool InTrade { get; set; }
-        public string TradeType { get; set; }        
+        public string TradeType { get; set; }
         public string? Status { get; set; }
         public decimal? ProfitLoss { get; set; }
+        public decimal TrargetPrice { get; set; }
+        public decimal TargetPercentGain { get; set; }
+        public string MCTicker { get; set; }
         public decimal? ExecutionFee { get; set; }
-        public string? Notes { get; set; }        
+        public string? Notes { get; set; }
     }
 }

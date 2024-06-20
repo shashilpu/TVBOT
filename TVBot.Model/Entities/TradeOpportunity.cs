@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 
 
 namespace TVBot.Model.Entities
@@ -33,5 +34,6 @@ namespace TVBot.Model.Entities
         /// 
         /// </summary>
         public decimal Volume { get; set; }
+        public String CrossOverType { get; set; } 
     }
 }

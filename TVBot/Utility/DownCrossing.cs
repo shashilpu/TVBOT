@@ -1,11 +1,12 @@
-﻿using TVBot.Model.Entities;
+﻿using System.Diagnostics.Eventing.Reader;
+using TVBot.Model.Entities;
 using TVBot.Models;
 using TVBot.Services;
 using TVBot.Services.Factory;
 
 namespace TVBot.Utility
 {
-    public static class UtiityServices
+    public static class DownCrossing
     {
 
         static Dictionary<string, decimal> trackedElementsEMA15Minutes = new Dictionary<string, decimal>();
@@ -50,23 +51,23 @@ namespace TVBot.Utility
         {
             SearchAndSend(macdDQueryFilePath, trackedElementsMACDOneDay, "1D_MACD", tradeOpportunityService);
         }
-        private static void SearchAndSend(string queryPath, Dictionary<string, decimal> trackedElements, string algoName, ISQLServerServiceFactory tradeOpportunityService)
+        private static async void SearchAndSend(string queryPath, Dictionary<string, decimal> trackedElements, string algoName, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchResponse res = APIServices.Screener(queryPath).Result;
             if (res != null & res.totalCount > 0)
             {
                 foreach (var ticker in res.data)
                 {
+                    var tickerName = ticker.s;
+                    var price = decimal.Parse(ticker.d[6]?.ToString());
+                    var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()),3);
+                    var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000,3);
                     if (!trackedElements.ContainsKey(ticker.s))
                     {
-                        var tickerName = ticker.s;
-                        var price = decimal.Parse(ticker.d[6]?.ToString());
-                        var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()),3);
-                        var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000,3);
                         trackedElements.Add(tickerName, price);
-                        var Message = "Bullish: "+algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " M T.= " + trackedElements.Count;
+                        var Message = "Bearish: " + algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " M T.= " + trackedElements.Count;
                         APIServices.SendToTeligrams(Message);
-                        tradeOpportunityService.Create<TradeOpportunity>().Add(new TradeOpportunity
+                        await tradeOpportunityService.Create<TradeOpportunity>().Add(new TradeOpportunity
                         {
                             CrossOverDateTime = DateTime.Now,
                             Ticker = tickerName,
@@ -74,7 +75,7 @@ namespace TVBot.Utility
                             Price = price,
                             AlgoName = algoName,
                             Volume = volume,
-                            CrossOverType = "Bullish"
+                            CrossOverType = "Bearish"
                         });
                         //tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
                         //{
@@ -88,13 +89,27 @@ namespace TVBot.Utility
                         //    ProfitLoss = 0,
                         //    ExecutionFee = 0,
                         //    Notes = "Initial Buy"
-                        //});
-                       // var tickerData = tickerName.Split(':');
-                        //var dataa = APIServices.GetCurrentPrices("");
-                        //foreach (var item in dataa.Result.data)
-                        //{
-                        //    Console.WriteLine(item.companyName +","+decimal.Parse(item.lastPrice.Replace(",","")) + "," + decimal.Parse(item.perChange.Replace(",", "")));
-                        //}
+                        //});                                              
+                    }
+
+                    var openTrades = tradeOpportunityService.Create<TradeExecution>().GetAll().Result.ToList<TradeExecution>().Where(x => x.Status == "Open");
+
+                    foreach (var trade in openTrades)
+                    {
+                        var tradeOpportunity = await tradeOpportunityService.Create<TradeOpportunity>().GetById(trade.TradeOpportunityId);
+
+                        if (tradeOpportunity != null)
+                        {
+                            if (tickerName.ToLower() == tradeOpportunity.Ticker.ToLower())
+                            {
+                                var percentProfitLoss = (price - trade.ExecutionPrice) / trade.ExecutionPrice * 100;
+                                var Message = "Open Trade Crosses Down " + algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " M "
+                                    + "ExecutionDateTime: " + trade.ExecutionDateTime + " ExecutionPrice: " + trade.ExecutionPrice +"ExecutionAlgo: "+tradeOpportunity.AlgoName+ " ProfitLoss: " + percentProfitLoss + "%";
+                                APIServices.SendToTeligrams(Message);
+                            }
+
+                        }
+
                     }
                 }
             }

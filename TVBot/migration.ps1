@@ -1,0 +1,2 @@
+Add-migrations addednewcolumninTradeexcution
+Update-Database

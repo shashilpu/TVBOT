@@ -1,2 +1,17 @@
 VS code Command 
+param($solutionDir)
+
+cd $solutionDir
+Invoke-Expression "dotnet ef migrations add addednewcolumninTradeexcution"
+
 dotnet ef migrations add addednewcolumn --verbose --project .\TVBot.SqlServer   --startup-project .\TVBot\
+
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- Other configuration settings -->
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="powershell.exe -File $(ProjectDir)migration.ps1 -solutionDir $(SolutionDir)" />
+  </Target>
+
+</Project>

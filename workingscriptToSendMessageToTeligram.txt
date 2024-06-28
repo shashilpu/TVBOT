@@ -1,0 +1,42 @@
+// Select the target <tbody> element
+const targetTbody = document.querySelector('tbody');
+
+// Initialize a Set to store previous data-rowkey values
+const previousRowKeys = new Set();
+
+// Create a MutationObserver instance
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+            if (node instanceof HTMLElement) {
+                const rowKey = node.getAttribute('data-rowkey');
+                if (rowKey && !previousRowKeys.has(rowKey)) {
+                    // New element with a unique data-rowkey added to the <tbody>
+					const chatId = "6583697962"; // Replace with your actual chat ID
+
+
+const apiUrl = `https://api.telegram.org/bot7481766478:AAE9SU9K15g09fTE3iAwQdQWz_5ADyvMoG4/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(rowKey)}`;
+
+// Make an HTTP request to send the message
+fetch(apiUrl)
+    .then((response) => response.json())
+    .then((data) => {
+        console.log("Message sent successfully:", data);
+    })
+    .catch((error) => {
+        console.error("Error sending message:", error);
+    });
+
+                   //
+                    previousRowKeys.add(rowKey);
+                }
+            }
+        });
+    });
+});
+
+// Configure the observer to watch for childList changes
+const config = { childList: true };
+
+// Start observing the target <tbody> element
+observer.observe(targetTbody, config);

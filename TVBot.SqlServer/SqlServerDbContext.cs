@@ -7,7 +7,8 @@ namespace TVBot.SqlServer
         public SqlServerDbContext(DbContextOptions<SqlServerDbContext> options) : base(options)
         {
 
-        }       
+        }   
+        DbSet<TickerInfo> TickerInfos { get; set; }
         DbSet<TradeOpportunity> Tradeopportunities { get; set; }   
         DbSet<TradeExecution> TradeExecutions { get; set; }
     }

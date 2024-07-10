@@ -7,9 +7,9 @@
       "right": 1000000
     },
     {
-      "left": "EMA9|15",
+      "left": "MACD.macd|60",
       "operation": "crosses_above",
-      "right": "EMA21|15"
+      "right": "MACD.signal|60"
     }
   ],
   "ignore_unknown_fields": false,

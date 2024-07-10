@@ -7,9 +7,9 @@
       "right": 1000000
     },
     {
-      "left": "EMA9|15",
+      "left": "EMA5|1",
       "operation": "crosses_above",
-      "right": "EMA21|15"
+      "right": "EMA9|1"
     }
   ],
   "ignore_unknown_fields": false,

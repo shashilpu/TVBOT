@@ -17,6 +17,12 @@ namespace TVBot
             var ema30MQueryFilePath = Path.Combine(queryFolderPath, "ema30MQuery.json");
             var ema2HQueryFilePath = Path.Combine(queryFolderPath, "ema2HQuery.json");
             var emaDQueryFilePath = Path.Combine(queryFolderPath, "emaDQuery.json");
+            var emaWQueryFilePath = Path.Combine(queryFolderPath, "emaWBullishQuery.json");
+            var macd1HQueryFilePath = Path.Combine(queryFolderPath, "macd1HBullishQuery.json");
+            var WeekDarvasBoxBullishQueryFilePath = Path.Combine(queryFolderPath, "WeekDarvasBoxBullishQuery.json");
+            var AllTimeDarvasBoxBullishQueryFilePath = Path.Combine(queryFolderPath, "AllTimeDarvasBoxBullishQuery.json");
+            var ema1MQueryFilePath = Path.Combine(queryFolderPath, "ema1MBullishQuery.json");
+            var ema5MQueryFilePath = Path.Combine(queryFolderPath, "ema5MBullishQuery.json");
             //Bearish Query Path
             var BearishQueryFilePath = Path.Combine(queryFolderPath, "BearishCross");
             var macdDQueryFilePathBearish = Path.Combine(BearishQueryFilePath, "macdDQuery.json");
@@ -27,38 +33,96 @@ namespace TVBot
             var ema2HQueryFilePathBearish = Path.Combine(BearishQueryFilePath, "ema2HQuery.json");
             var emaDQueryFilePathBearish = Path.Combine(BearishQueryFilePath, "emaDQuery.json");
 
+            // run the below code in a loop when time is between 9:15 to 15:30
             while (true)
             {
-                UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
-                Thread.Sleep(10000);
-                DownCrossing.EMA15MReversal(ema15MQueryFilePathBearish, tradeOpportunityService);
-                Thread.Sleep(10000);
-                UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
-                Thread.Sleep(10000);
-               // DownCrossing.EMA30MReversal(ema30MQueryFilePathBearish, tradeOpportunityService);
-              //  Thread.Sleep(10000);
-                UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
-                Thread.Sleep(10000);
-              //  DownCrossing.EMAOneHourReversal(ema1HQueryFilePathBearish, tradeOpportunityService);
-//Thread.Sleep(10000);
-                UtiityServices.EMATwoHourReversal(ema2HQueryFilePath, tradeOpportunityService);
-                Thread.Sleep(10000);
-              //  DownCrossing.EMATwoHourReversal(ema2HQueryFilePathBearish, tradeOpportunityService);
-              //  Thread.Sleep(10000);
-                UtiityServices.EMAFourHourReversal(ema4HQueryFilePath, tradeOpportunityService);
-                Thread.Sleep(10000);
-               // DownCrossing.EMAFourHourReversal(ema4HQueryFilePathBearish, tradeOpportunityService);
-              //  Thread.Sleep(10000);
-                UtiityServices.EMAOneDayReversal(emaDQueryFilePath, tradeOpportunityService);
-                Thread.Sleep(10000);
-              //  DownCrossing.EMAOneDayReversal(emaDQueryFilePathBearish, tradeOpportunityService);
-              //  Thread.Sleep(10000);
-                UtiityServices.MacdOneDayReversal(macdDQueryFilePath, tradeOpportunityService);
-                Thread.Sleep(10000);
-              //  DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
-              //  Thread.Sleep(10000);
-                await Status.FetchCurrentPriceAsync(tradeOpportunityService);
+                var currentTime = DateTime.Now.TimeOfDay;
+                var startTime = new TimeSpan(9, 08, 0);
+                var endTime = new TimeSpan(15, 30, 0);
+
+                if (currentTime >= startTime && currentTime <= endTime)
+                {
+                    UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
+                    if (count % 2 == 0)
+                    {
+                        UtiityServices.EMA5MReversal(ema5MQueryFilePath, tradeOpportunityService);
+                    }
+                    if (count % 3 == 0)
+                    {
+                        UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
+                    }
+
+                    if (count % 4 == 0)
+                    {
+                        UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
+                    }
+                    if (count % 5 == 0)
+                    {
+                        UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
+                    }
+                    if (count % 6 == 0)
+                    {
+                        UtiityServices.MacdOneHourReversal(macd1HQueryFilePath, tradeOpportunityService);
+                    }
+                    if (count % 7 == 0)
+                    {
+                        UtiityServices.EMATwoHourReversal(ema2HQueryFilePath, tradeOpportunityService);
+
+                    }
+                    if (count % 8 == 0)
+                    {
+                        UtiityServices.EMAFourHourReversal(ema4HQueryFilePath, tradeOpportunityService);
+
+                    }
+                    if (count % 9 == 0)
+                    {
+                        UtiityServices.EMAOneDayReversal(emaDQueryFilePath, tradeOpportunityService);
+
+                    }
+                    if (count % 10 == 0)
+                    {
+                        UtiityServices.MacdOneDayReversal(macdDQueryFilePath, tradeOpportunityService);
+                    }
+                    if (count % 60 == 0)
+                    {
+                        UtiityServices.EMAOneWeekReversal(emaWQueryFilePath, tradeOpportunityService);
+                    }
+                    if (count % 120 == 0)
+                    {
+                        UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
+                    }
+                    if (count % 180 == 0)
+                    {
+                        UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);
+                    }
+
+
+
+
+                    // DownCrossing.EMA30MReversal(ema30MQueryFilePathBearish, tradeOpportunityService);
+
+
+
+                    // DownCrossing.EMAOneHourReversal(ema1HQueryFilePathBearish, tradeOpportunityService);
+
+
+
+                    // DownCrossing.EMATwoHourReversal(ema2HQueryFilePathBearish, tradeOpportunityService);
+
+
+                    // DownCrossing.EMAFourHourReversal(ema4HQueryFilePathBearish, tradeOpportunityService);
+
+
+                    // DownCrossing.EMAOneDayReversal(emaDQueryFilePathBearish, tradeOpportunityService);
+
+
+                    // DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
+
+                  //  await Status.FetchCurrentPriceAsync(tradeOpportunityService);
+                   
+                }
                 count++;
+                Thread.Sleep(10000);
                 Console.WriteLine(count);
             }
         }

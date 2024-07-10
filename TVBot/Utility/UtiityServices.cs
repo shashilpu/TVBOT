@@ -21,6 +21,25 @@ namespace TVBot.Utility
         static Dictionary<string, decimal> trackedElementsEMAOneDay = new Dictionary<string, decimal>();
 
         static Dictionary<string, decimal> trackedElementsMACDOneDay = new Dictionary<string, decimal>();
+        static Dictionary<string, decimal> trackedElementsMACDOneHour = new Dictionary<string, decimal>();
+        static Dictionary<string, decimal> trackedElementsEMAOneWeek = new Dictionary<string, decimal>();
+        static Dictionary<string, decimal> trackedElementsWeekDarvas = new Dictionary<string, decimal>();
+        static Dictionary<string, decimal> trackedElementsAllTimeDarvas = new Dictionary<string, decimal>();
+        static Dictionary<string, decimal> trackedElementsEMA1Minutes = new Dictionary<string, decimal>();
+        static Dictionary<string, decimal> trackedElementsEMA5Minutes = new Dictionary<string, decimal>();
+
+
+
+        public static void EMA1MReversal(string ema1MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
+        {
+            SearchAndSend(ema1MQueryFilePath, trackedElementsEMA1Minutes, "1M_EMA", tradeOpportunityService);
+        }
+
+        public static void EMA5MReversal(string ema5MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
+        {
+            SearchAndSend(ema5MQueryFilePath, trackedElementsEMA5Minutes, "5M_EMA", tradeOpportunityService);
+        }
+
         public static void EMA15MReversal(string ema15MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchAndSend(ema15MQueryFilePath, trackedElementsEMA15Minutes, "15M_EMA", tradeOpportunityService);
@@ -50,6 +69,23 @@ namespace TVBot.Utility
         {
             SearchAndSend(macdDQueryFilePath, trackedElementsMACDOneDay, "1D_MACD", tradeOpportunityService);
         }
+        public static void MacdOneHourReversal(string macd1HQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
+        {
+            SearchAndSend(macd1HQueryFilePath, trackedElementsMACDOneHour, "1H_MACD", tradeOpportunityService);
+        }
+        public static void EMAOneWeekReversal(string emaWQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
+        {
+            SearchAndSend(emaWQueryFilePath, trackedElementsEMAOneWeek, "1W_EMA", tradeOpportunityService);
+        }
+        public static void WeekDarvasBoxBullish(string queryPath, ISQLServerServiceFactory tradeOpportunityService)
+        {
+            SearchAndSend(queryPath, trackedElementsWeekDarvas, "52W_Darvas", tradeOpportunityService);
+        }
+        public static void AllTimeDarvasBoxBullish(string queryPath, ISQLServerServiceFactory tradeOpportunityService)
+        {
+            SearchAndSend(queryPath, trackedElementsAllTimeDarvas, "AllTime_Darvas", tradeOpportunityService);
+        }
+
         private static void SearchAndSend(string queryPath, Dictionary<string, decimal> trackedElements, string algoName, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchResponse res = APIServices.Screener(queryPath).Result;

@@ -12,8 +12,8 @@ using TVBot.SqlServer;
 namespace TVBot.SqlServer.Migrations
 {
     [DbContext(typeof(SqlServerDbContext))]
-    [Migration("20240710131344_addednewquery")]
-    partial class addednewquery
+    [Migration("20240712135558_initialMigration")]
+    partial class initialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,8 +27,11 @@ namespace TVBot.SqlServer.Migrations
 
             modelBuilder.Entity("TVBot.Model.Entities.TickerInfo", b =>
                 {
-                    b.Property<string>("TickerInfoId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("TickerInfoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TickerInfoId"));
 
                     b.Property<string>("CampanyName")
                         .IsRequired()
@@ -103,6 +106,62 @@ namespace TVBot.SqlServer.Migrations
                     b.ToTable("TradeExecution");
                 });
 
+            modelBuilder.Entity("TVBot.Model.Entities.TradeExecutionOneMin", b =>
+                {
+                    b.Property<int>("TradeExecutionOneMinId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TradeExecutionOneMinId"));
+
+                    b.Property<DateTime>("ExecutionDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("ExecutionFee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("ExecutionPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("InTrade")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("ProfitLoss")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TargetPercentGain")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Ticker")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TradeOpportunityOneMinId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TradeType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TrargetPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("TradeExecutionOneMinId");
+
+                    b.HasIndex("TradeOpportunityOneMinId");
+
+                    b.ToTable("TradeExecutionOneMin");
+                });
+
             modelBuilder.Entity("TVBot.Model.Entities.TradeOpportunity", b =>
                 {
                     b.Property<int>("Id")
@@ -140,6 +199,43 @@ namespace TVBot.SqlServer.Migrations
                     b.ToTable("TradeOpportunity");
                 });
 
+            modelBuilder.Entity("TVBot.Model.Entities.TradeOpportunityOneMin", b =>
+                {
+                    b.Property<int>("TradeOpportunityOneMinId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TradeOpportunityOneMinId"));
+
+                    b.Property<string>("AlgoName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CrossOverDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CrossOverType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PercentChange")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Ticker")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Volume")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("TradeOpportunityOneMinId");
+
+                    b.ToTable("TradeOpportunityOneMin");
+                });
+
             modelBuilder.Entity("TVBot.Model.Entities.TradeExecution", b =>
                 {
                     b.HasOne("TVBot.Model.Entities.TradeOpportunity", "TradeOpportunity")
@@ -149,6 +245,17 @@ namespace TVBot.SqlServer.Migrations
                         .IsRequired();
 
                     b.Navigation("TradeOpportunity");
+                });
+
+            modelBuilder.Entity("TVBot.Model.Entities.TradeExecutionOneMin", b =>
+                {
+                    b.HasOne("TVBot.Model.Entities.TradeOpportunityOneMin", "TradeOpportunityOneMin")
+                        .WithMany()
+                        .HasForeignKey("TradeOpportunityOneMinId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TradeOpportunityOneMin");
                 });
 #pragma warning restore 612, 618
         }

@@ -38,35 +38,35 @@ namespace TVBot
             {
                 var currentTime = DateTime.Now.TimeOfDay;
                 var startTime = new TimeSpan(9, 08, 0);
-                var endTime = new TimeSpan(15, 30, 0);
+                var endTime = new TimeSpan(22, 30, 0);
 
                 if (currentTime >= startTime && currentTime <= endTime)
                 {
                     UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
                     if (count % 2 == 0)
                     {
-                        UtiityServices.EMA5MReversal(ema5MQueryFilePath, tradeOpportunityService);
+                      //  UtiityServices.EMA5MReversal(ema5MQueryFilePath, tradeOpportunityService);
                     }
                     if (count % 3 == 0)
                     {
-                        UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
+                       // UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
                     }
 
                     if (count % 4 == 0)
                     {
-                        UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
+                     //   UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
                     }
                     if (count % 5 == 0)
                     {
-                        UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
+                      //  UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
                     }
                     if (count % 6 == 0)
                     {
-                        UtiityServices.MacdOneHourReversal(macd1HQueryFilePath, tradeOpportunityService);
+                      //  UtiityServices.MacdOneHourReversal(macd1HQueryFilePath, tradeOpportunityService);
                     }
                     if (count % 7 == 0)
                     {
-                        UtiityServices.EMATwoHourReversal(ema2HQueryFilePath, tradeOpportunityService);
+                      //  UtiityServices.EMATwoHourReversal(ema2HQueryFilePath, tradeOpportunityService);
 
                     }
                     if (count % 8 == 0)
@@ -120,7 +120,7 @@ namespace TVBot
 
                   //  await Status.FetchCurrentPriceAsync(tradeOpportunityService);
                    
-                }
+                }               
                 count++;
                 Thread.Sleep(10000);
                 Console.WriteLine(count);

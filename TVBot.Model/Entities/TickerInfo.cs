@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,10 +8,12 @@ using System.Threading.Tasks;
 namespace TVBot.Model.Entities
 {
     public class TickerInfo
-    {       
-        public string TickerInfoId { get; set; }
-        public string CampanyName { get; set; }
+    {
+        [Key]
+        public int TickerInfoId { get; set; }
         public string NseSymbol { get; set; }
+        public string CampanyName { get; set; }
+        
         public string MCSymbol { get; set; }
        // public string NseSymbol { get; set; }
         //public string Exchange { get; set; }

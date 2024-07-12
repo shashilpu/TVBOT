@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TVBot.Model.Entities;
 using TVBot.Repository.SqlServer;
 using TVBot.Services.Factory;
 using TVBot.Services.SqlServer;
@@ -25,7 +24,7 @@ namespace TVBot
         .ConfigureServices((context, services) =>
         {
             services.AddDbContext<SqlServerDbContext>(options =>
-            options.UseSqlServer(context.Configuration.GetConnectionString("DB_CONNECTION_STRING")), ServiceLifetime.Singleton);
+            options.UseSqlServer(context.Configuration.GetConnectionString("DB_CONNECTION_STRING")), ServiceLifetime.Transient);
             services.AddTransient(typeof(ISQLServer<>), typeof(SQLServer<>));
             services.AddTransient(typeof(ISQLServerService<>), typeof(SQLServerService<>));
             services.AddTransient<ISQLServerServiceFactory, SQLServerServiceFactory>();

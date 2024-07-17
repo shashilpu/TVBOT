@@ -57,6 +57,9 @@
     <None Update="JsonQuery\BearishCross\macdDQuery.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="JsonQuery\BearishCross\ema1MBearishQuery.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="JsonQuery\ema1MBullishQuery.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -93,10 +96,6 @@
     <None Update="JsonQuery\WeekDarvasBoxBullishQuery.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="JsonQuery\BearishCross\" />
   </ItemGroup>
 
 </Project>

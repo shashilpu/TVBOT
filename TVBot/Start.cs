@@ -7,7 +7,7 @@ namespace TVBot
     {
         public static async void Begin(ISQLServerServiceFactory tradeOpportunityService)
         {
-            int count = 0;
+            int count = 400;
             var appPath = AppDomain.CurrentDomain.BaseDirectory;
             var queryFolderPath = Path.Combine(appPath, "JsonQuery");
             var macdDQueryFilePath = Path.Combine(queryFolderPath, "macdDQuery.json");
@@ -25,6 +25,7 @@ namespace TVBot
             var ema5MQueryFilePath = Path.Combine(queryFolderPath, "ema5MBullishQuery.json");
             //Bearish Query Path
             var BearishQueryFilePath = Path.Combine(queryFolderPath, "BearishCross");
+            var ema1MQueryFilePathBearish = Path.Combine(BearishQueryFilePath, "ema1MBearishQuery.json");
             var macdDQueryFilePathBearish = Path.Combine(BearishQueryFilePath, "macdDQuery.json");
             var ema4HQueryFilePathBearish = Path.Combine(BearishQueryFilePath, "ema4HQuery.json");
             var ema1HQueryFilePathBearish = Path.Combine(BearishQueryFilePath, "ema1HQuery.json");
@@ -38,35 +39,35 @@ namespace TVBot
             {
                 var currentTime = DateTime.Now.TimeOfDay;
                 var startTime = new TimeSpan(9, 08, 0);
-                var endTime = new TimeSpan(22, 30, 0);
+                var endTime = new TimeSpan(24, 30, 0);
 
                 if (currentTime >= startTime && currentTime <= endTime)
                 {
                     UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
                     if (count % 2 == 0)
                     {
-                      //  UtiityServices.EMA5MReversal(ema5MQueryFilePath, tradeOpportunityService);
+                        UtiityServices.EMA5MReversal(ema5MQueryFilePath, tradeOpportunityService);
                     }
                     if (count % 3 == 0)
                     {
-                       // UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
+                        UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
                     }
 
                     if (count % 4 == 0)
                     {
-                     //   UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
+                        UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
                     }
                     if (count % 5 == 0)
                     {
-                      //  UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
+                        UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
                     }
                     if (count % 6 == 0)
                     {
-                      //  UtiityServices.MacdOneHourReversal(macd1HQueryFilePath, tradeOpportunityService);
+                        UtiityServices.MacdOneHourReversal(macd1HQueryFilePath, tradeOpportunityService);
                     }
                     if (count % 7 == 0)
                     {
-                      //  UtiityServices.EMATwoHourReversal(ema2HQueryFilePath, tradeOpportunityService);
+                        UtiityServices.EMATwoHourReversal(ema2HQueryFilePath, tradeOpportunityService);
 
                     }
                     if (count % 8 == 0)
@@ -85,7 +86,7 @@ namespace TVBot
                     }
                     if (count % 60 == 0)
                     {
-                        UtiityServices.EMAOneWeekReversal(emaWQueryFilePath, tradeOpportunityService);
+                       UtiityServices.EMAOneWeekReversal(emaWQueryFilePath, tradeOpportunityService);
                     }
                     if (count % 120 == 0)
                     {
@@ -93,7 +94,7 @@ namespace TVBot
                     }
                     if (count % 180 == 0)
                     {
-                        UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);
+                       UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);
                     }
 
 
@@ -118,8 +119,10 @@ namespace TVBot
 
                     // DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
 
-                  //  await Status.FetchCurrentPriceAsync(tradeOpportunityService);
-                   
+                     UtiityServices.GetCurrentPriceAndCloseOpenTrades(tradeOpportunityService);
+                    UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
+
+
                 }               
                 count++;
                 Thread.Sleep(10000);

@@ -30,13 +30,13 @@ namespace TVBot.Utility
 
 
 
-        public static void EMA1MReversal(string ema1MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
+        public static async void EMA1MReversal(string ema1MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
-          //  SearchAndSend(ema1MQueryFilePath, trackedElementsEMA1Minutes, "1M_EMA", tradeOpportunityService);
-            OneMin5_9EMACrossOver(ema1MQueryFilePath, tradeOpportunityService);
+            //  SearchAndSend(ema1MQueryFilePath, trackedElementsEMA1Minutes, "1M_EMA", tradeOpportunityService);
+            await OneMin5_9EMACrossOver(ema1MQueryFilePath, tradeOpportunityService);
         }
 
-        public static void EMA5MReversal(string ema5MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
+        public static async void EMA5MReversal(string ema5MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchAndSend(ema5MQueryFilePath, trackedElementsEMA5Minutes, "5M_EMA", tradeOpportunityService);
         }
@@ -87,7 +87,7 @@ namespace TVBot.Utility
             SearchAndSend(queryPath, trackedElementsAllTimeDarvas, "AllTime_Darvas", tradeOpportunityService);
         }
 
-        private static void SearchAndSend(string queryPath, Dictionary<string, decimal> trackedElements, string algoName, ISQLServerServiceFactory tradeOpportunityService)
+        private static async void SearchAndSend(string queryPath, Dictionary<string, decimal> trackedElements, string algoName, ISQLServerServiceFactory tradeOpportunityService)
         {
             SearchResponse res = APIServices.Screener(queryPath).Result;
             if (res != null & res.totalCount > 0)
@@ -96,42 +96,64 @@ namespace TVBot.Utility
                 {
                     if (!trackedElements.ContainsKey(ticker.s))
                     {
+                        var analystRating = 0.0m;
                         var tickerName = ticker.s;
                         var price = decimal.Parse(ticker.d[6]?.ToString());
                         var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                         var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
-                        trackedElements.Add(tickerName, price);
-                        var Message = "Bullish: " + algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " M T.= " + trackedElements.Count;
-                        APIServices.SendToTeligrams(Message);
-                        tradeOpportunityService.Create<TradeOpportunity>().Add(new TradeOpportunity
+                        if (ticker.d[24] != null)
                         {
-                            CrossOverDateTime = DateTime.Now,
-                            Ticker = tickerName,
-                            PercentChange = change,
-                            Price = price,
-                            AlgoName = algoName,
-                            Volume = volume,
-                            CrossOverType = "Bullish"
-                        });
-                        //tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
-                        //{
-                        //    TradeOpportunityId = 367,
-                        //    ExecutionDateTime = DateTime.Now,
-                        //    ExecutionPrice = price,
-                        //    Quantity = 1,
-                        //    InTrade = true,
-                        //    TradeType = "Buy",
-                        //    Status = "Open",
-                        //    ProfitLoss = 0,
-                        //    ExecutionFee = 0,
-                        //    Notes = "Initial Buy"
-                        //});
-                        // var tickerData = tickerName.Split(':');
-                        //var dataa = APIServices.GetCurrentPrices("");
-                        //foreach (var item in dataa.Result.data)
-                        //{
-                        //    Console.WriteLine(item.companyName +","+decimal.Parse(item.lastPrice.Replace(",","")) + "," + decimal.Parse(item.perChange.Replace(",", "")));
-                        //}
+                            analystRating = decimal.Parse(ticker.d[24].ToString());
+                        }
+                        var beta = decimal.Parse(ticker.d[27]?.ToString());
+                        var percentVolalityOneWeek = decimal.Parse(ticker.d[28]?.ToString());
+                        // trackedElements.Add(tickerName, price);
+                        var Message = "Bullish: " + algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " Beta.= " + beta + " Volality.= " + percentVolalityOneWeek+" AR.= "+ analystRating;
+                        if (beta > 1 || percentVolalityOneWeek > 5)
+                        {
+                            APIServices.SendToTeligrams(Message);
+                            //avoid adding tradeOpportunity if tradeOpportunity with same Ticker added to table today
+                            var lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.Date).OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
+                            if (lastTradeOpportunity == null)
+                            {
+                                await tradeOpportunityService.Create<TradeOpportunity>().Add(new TradeOpportunity
+                                {
+                                    CrossOverDateTime = DateTime.Now,
+                                    Ticker = tickerName,
+                                    PercentChange = change,
+                                    Price = price,
+                                    AlgoName = algoName,
+                                    Volume = volume,
+                                    CrossOverType = "Bullish",
+                                    BetaOneYear = beta,
+                                    PercentVolalityOneWeek = percentVolalityOneWeek
+                                });
+                            }
+                            else
+                            {
+                                var _message = "TradeOpportunity with same Ticker added to table today";
+                                APIServices.SendToTeligrams(_message);
+                            }
+                            //tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
+                            //{
+                            //    TradeOpportunityId = 367,
+                            //    ExecutionDateTime = DateTime.Now,
+                            //    ExecutionPrice = price,
+                            //    Quantity = 1,
+                            //    InTrade = true,
+                            //    TradeType = "Buy",
+                            //    Status = "Open",
+                            //    ProfitLoss = 0,
+                            //    ExecutionFee = 0,
+                            //    Notes = "Initial Buy"
+                            //});
+                            // var tickerData = tickerName.Split(':');
+                            //var dataa = APIServices.GetCurrentPrices("");
+                            //foreach (var item in dataa.Result.data)
+                            //{
+                            //    Console.WriteLine(item.companyName +","+decimal.Parse(item.lastPrice.Replace(",","")) + "," + decimal.Parse(item.perChange.Replace(",", "")));
+                            //}
+                        }
                     }
                 }
             }
@@ -144,71 +166,150 @@ namespace TVBot.Utility
             {
                 foreach (var ticker in res.data)
                 {
+                    var analystRating=0.0m;
                     var tickerName = ticker.s;
                     var price = decimal.Parse(ticker.d[6]?.ToString());
                     var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                     var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
-                    var tradeOpportunity = new TradeOpportunityOneMin
+                    if (ticker.d[24]!=null)
                     {
-                        CrossOverDateTime = DateTime.Now,
-                        Ticker = tickerName,
-                        PercentChange = change,
-                        Price = price,
-                        AlgoName = "1M_5_9_EMA",
-                        Volume = volume,
-                        CrossOverType = "Bullish"
-                    };
-                    await tradeOpportunityService.Create<TradeOpportunityOneMin>().Add(tradeOpportunity);
-
-                    var tradeOpportunityOneMinId = tradeOpportunity.TradeOpportunityOneMinId;
-                    if (!await IsTradeOpen(tickerName, tradeOpportunityService))
-                    {
-                        await OneMinExecuteTrade(tradeOpportunityOneMinId, tickerName, price, tradeOpportunityService);
+                        analystRating = decimal.Parse(ticker.d[24].ToString());
                     }
+                   
+                    var beta = decimal.Parse(ticker.d[27]?.ToString());
+                    var percentVolalityOneWeek = decimal.Parse(ticker.d[28]?.ToString());
+                    if (beta > 1 || percentVolalityOneWeek > 5)
+                    {
+                        // avoid adding tradeOpportunity if tradeOpportunity with same Ticker added to table 15 min ago
+                        var lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunityOneMin>().GetAll())
+                            .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-15))
+                            .OrderByDescending(x => x.CrossOverDateTime)
+                            .FirstOrDefault();
+                        if (lastTradeOpportunity == null)
+                        {
+                            var tradeOpportunity = new TradeOpportunityOneMin
+                            {
+                                CrossOverDateTime = DateTime.Now,
+                                Ticker = tickerName,
+                                PercentChange = change,
+                                Price = price,
+                                AlgoName = "1M_5_9_EMA",
+                                Volume = volume,
+                                CrossOverType = "Bullish",
+                                BetaOneYear = beta,
+                                PercentVolalityOneWeek = percentVolalityOneWeek
+
+                            };
+                            await tradeOpportunityService.Create<TradeOpportunityOneMin>().Add(tradeOpportunity);
+                            var tradeOpportunityOneMinId = tradeOpportunity.TradeOpportunityOneMinId;
+                            if (!await IsTradeOpen(tickerName, tradeOpportunityService))
+                            {
+                                await OneMinExecuteTrade(tradeOpportunityOneMinId, tickerName, price, tradeOpportunityService);
+                            }
+                        }
+                    }
+
                 }
             }
         }
 
-        public static async Task<bool> IsTradeOpen(string ticker, ISQLServerServiceFactory tradeOpportunityService)
+        public static async Task<bool> IsTradeOpen(string tickerName, ISQLServerServiceFactory tradeOpportunityService)
         {
-            var trade = (await tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll()).FirstOrDefault(x => x.Ticker == ticker && x.Status == "Open");
+            var trade = (await tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll()).OrderBy(x => x.ExecutionDateTime).FirstOrDefault(x => x.Ticker == tickerName && x.Status == "Open");
             return trade != null;
         }
 
-        public static async Task OneMinExecuteTrade(int tradeOpportunityId, string ticker, decimal price, ISQLServerServiceFactory tradeOpportunityService)
+        public static async Task OneMinExecuteTrade(int tradeOpportunityId, string tickerName, decimal price, ISQLServerServiceFactory tradeOpportunityService)
         {
             await tradeOpportunityService.Create<TradeExecutionOneMin>().Add(new TradeExecutionOneMin
             {
                 TradeOpportunityOneMinId = tradeOpportunityId,
                 ExecutionDateTime = DateTime.Now,
                 ExecutionPrice = price,
-                Quantity = 1,
+                Quantity = 100,
                 InTrade = true,
                 TradeType = "Buy",
                 Status = "Open",
                 ProfitLoss = 0,
                 ExecutionFee = 0,
                 Notes = "Initial Buy",
-                Ticker = ticker
+                Ticker = tickerName,
+                TrargetPrice = price + (price * 0.005m),
 
             });
         }
 
         //implement a methode to close trade and update trade execution table
-        public static async void OneMinCloseTrade(string ticker, decimal price, ISQLServerServiceFactory tradeOpportunityService)
+        public static async void OneMinCloseTrade(string ticker,string closedFrom, decimal price, ISQLServerServiceFactory tradeOpportunityService)
         {
-            var trade =  tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll().Result.ToList<TradeExecutionOneMin>().Where(x => x.Ticker == ticker && x.Status == "Open").FirstOrDefault();
+            var trade = (await tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll()).Where(x => x.Ticker == ticker && x.Status == "Open").OrderBy(x => x.ExecutionDateTime).FirstOrDefault();
             if (trade != null)
-            {
-                trade.ExecutionDateTime = DateTime.Now;
-                trade.ExecutionPrice = price;
+            {               
+                var currentVale = price * trade.Quantity;
+                var totalInvestment= trade.ExecutionPrice * trade.Quantity;
+                var totalProfitLoss = currentVale- totalInvestment;
+                trade.TradeCloseDateTime = DateTime.Now;
+                trade.TradeClosePrice = price;
                 trade.InTrade = false;
                 trade.Status = "Closed";
-                trade.ProfitLoss = price - trade.ExecutionPrice;
+                trade.ProfitLoss = totalProfitLoss;
+                trade.PercentProfitLoss = (totalProfitLoss / totalInvestment) * 100;
                 trade.ExecutionFee = 0;
-                trade.Notes = "Closed Trade";
+                trade.Notes = "Closed Trade from "+ closedFrom;
                 tradeOpportunityService.Create<TradeExecutionOneMin>().Update(trade);
+            }
+        }
+        //impliment a method to check if 1 min 5,9 ema downward crossover hanppen if so close the trade
+        public static async void OneMin5_9EMADownwardCrossOver(string queryPath, ISQLServerServiceFactory tradeOpportunityService)
+        {
+            SearchResponse res = await APIServices.Screener(queryPath);
+            if (res != null && res.totalCount > 0)
+            {
+                foreach (var ticker in res.data)
+                {
+                    var tickerName = ticker.s;
+                    var price = decimal.Parse(ticker.d[6]?.ToString());
+                    var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
+                    var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
+                    var beta = decimal.Parse(ticker.d[27]?.ToString());
+                    var percentVolalityOneWeek = decimal.Parse(ticker.d[28]?.ToString());
+
+                    if (await IsTradeOpen(tickerName, tradeOpportunityService))
+                    {
+                        var trade = (await tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll()).Where(x => x.Ticker == tickerName && x.Status == "Open").OrderBy(x => x.ExecutionDateTime).FirstOrDefault();
+                        if ((price - trade?.ExecutionPrice) > 0)
+                        {
+                            // check if price is greater than 1% of execution price
+                            if ((price - trade.ExecutionPrice) / trade.ExecutionPrice * 100 >= 1)
+                            {
+                                OneMinCloseTrade(tickerName,"EMA Crossover", price, tradeOpportunityService);
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+        // impliment a method to get all open trades and check if price is greater than 0.5% of execution price if so close the trade
+        public static async void GetCurrentPriceAndCloseOpenTrades(ISQLServerServiceFactory tradeOpportunityService)
+        {
+            var openTrades = (await tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll()).Where(x => x.Status == "Open");
+            foreach (var trade in openTrades)
+            {
+                var result = await APIServices.GetCurrentPriceFromFivePaise(trade.Ticker.Split(':')[1]);
+
+                var currentPrice = decimal.Parse(result.stocks.price + "." + result.stocks.d_price);
+                if ((currentPrice - trade.ExecutionPrice) > 0)
+                {
+                    // check if price is greater than 1% of execution price
+                    if ((currentPrice - trade.ExecutionPrice) / trade.ExecutionPrice * 100 >= 1)
+                    {
+                        OneMinCloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
+                    }
+                }
             }
         }
     }
 }
+

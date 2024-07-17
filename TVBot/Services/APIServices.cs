@@ -141,6 +141,31 @@ namespace TVBot.Services
                 }
             }
         }
+        public static async Task<FivePaiseCP> GetCurrentPriceFromFivePaise(string tickerName)
+        {
+            string url = $"https://www.5paisa.com/update-stock-info/{tickerName}";
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+              //  client.DefaultRequestHeaders.Add("Origin", "https://moneycontrol.com");
+              //  client.DefaultRequestHeaders.Add("Referer", "https://moneycontrol.com/");
+                try
+                {
+                    HttpResponseMessage response = client.GetAsync(url).Result;
+                    response.EnsureSuccessStatusCode();
+                    //string responseBody = await response.Content.ReadAsStringAsync();
+                    //return responseBody;
+                    var searchResponse = await JsonSerializer.DeserializeAsync<FivePaiseCP>(response.Content.ReadAsStream(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    return searchResponse;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending message: {ex.Message}");
+                    //  return ex.Message;
+                    return null;
+                }
+            }
+        }
         public class Message
         {
             public string chat_id { get; set; }

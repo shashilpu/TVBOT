@@ -15,7 +15,7 @@ namespace TVBot.Utility
             // var result =await  APIServices.GetCurrentPrices(scIdList,scId);
             foreach (var trade in openTrades)
             {
-                var result = await APIServices.GetCurrentPrices(trade.MCTicker, trade.MCTicker);
+                var result = await APIServices.GetCurrentPrices(trade.Ticker, trade.Ticker);
                 foreach (var cp in result.data)
                 {
                     var lastPrice = decimal.Parse(cp.lastPrice.Replace(",", ""));

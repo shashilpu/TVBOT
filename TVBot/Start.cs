@@ -39,11 +39,14 @@ namespace TVBot
             {
                 var currentTime = DateTime.Now.TimeOfDay;
                 var startTime = new TimeSpan(9, 08, 0);
-                var endTime = new TimeSpan(24, 30, 0);
+                var endTime = new TimeSpan(15, 30, 0);
+                var tradeCurrentTime = DateTime.Now.TimeOfDay;
+                var tradeStartTime = new TimeSpan(9, 15, 10);
+                var tradeEndTime = new TimeSpan(15, 15, 0);
 
                 if (currentTime >= startTime && currentTime <= endTime)
                 {
-                    UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
+                   
                     if (count % 2 == 0)
                     {
                         UtiityServices.EMA5MReversal(ema5MQueryFilePath, tradeOpportunityService);
@@ -118,9 +121,12 @@ namespace TVBot
 
 
                     // DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
-
-                     UtiityServices.GetCurrentPriceAndCloseOpenTrades(tradeOpportunityService);
-                    UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
+                    if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
+                    {
+                        UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
+                        UtiityServices.GetCurrentPriceAndCloseOpenTrades(tradeOpportunityService);
+                        UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
+                    }
 
 
                 }               

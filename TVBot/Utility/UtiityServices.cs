@@ -108,10 +108,10 @@ namespace TVBot.Utility
                         var beta = decimal.Parse(ticker.d[27]?.ToString());
                         var percentVolalityOneWeek = decimal.Parse(ticker.d[28]?.ToString());
                         // trackedElements.Add(tickerName, price);
-                        var Message = "Bullish: " + algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " Beta.= " + beta + " Volality.= " + percentVolalityOneWeek+" AR.= "+ analystRating;
+                        var Message = "Bullish: " + algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " Beta.= " + beta + " Volality.= " + percentVolalityOneWeek + " AR.= " + analystRating;
                         if (beta > 1 || percentVolalityOneWeek > 5)
                         {
-                            APIServices.SendToTeligrams(Message);
+                            // APIServices.SendToTeligrams(Message);
                             //avoid adding tradeOpportunity if tradeOpportunity with same Ticker added to table today
                             var lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.Date).OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
                             if (lastTradeOpportunity == null)
@@ -128,11 +128,18 @@ namespace TVBot.Utility
                                     BetaOneYear = beta,
                                     PercentVolalityOneWeek = percentVolalityOneWeek
                                 });
+                                // check if crossover happen eariler also except today if so get the last crossover date, price and algoname and send to telegram
+                                var lastTradeOpportunityExceptToday = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(x => x.Ticker == tickerName && x.CrossOverDateTime < DateTime.Now.Date).OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
+                                if (lastTradeOpportunityExceptToday != null)
+                                {
+                                    Message += " Last CrossOver.= " + lastTradeOpportunityExceptToday.CrossOverDateTime + " Price.= " + lastTradeOpportunityExceptToday.Price + " AlgoN.= " + lastTradeOpportunityExceptToday.AlgoName;
+
+                                }
+                                APIServices.SendToTeligrams(Message);
                             }
                             else
                             {
-                                var _message = "TradeOpportunity with same Ticker added to table today";
-                                APIServices.SendToTeligrams(_message);
+                               
                             }
                             //tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
                             //{
@@ -166,16 +173,16 @@ namespace TVBot.Utility
             {
                 foreach (var ticker in res.data)
                 {
-                    var analystRating=0.0m;
+                    var analystRating = 0.0m;
                     var tickerName = ticker.s;
                     var price = decimal.Parse(ticker.d[6]?.ToString());
                     var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                     var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
-                    if (ticker.d[24]!=null)
+                    if (ticker.d[24] != null)
                     {
                         analystRating = decimal.Parse(ticker.d[24].ToString());
                     }
-                   
+
                     var beta = decimal.Parse(ticker.d[27]?.ToString());
                     var percentVolalityOneWeek = decimal.Parse(ticker.d[28]?.ToString());
                     if (beta > 1 || percentVolalityOneWeek > 5)
@@ -240,14 +247,14 @@ namespace TVBot.Utility
         }
 
         //implement a methode to close trade and update trade execution table
-        public static async void OneMinCloseTrade(string ticker,string closedFrom, decimal price, ISQLServerServiceFactory tradeOpportunityService)
+        public static async void OneMinCloseTrade(string ticker, string closedFrom, decimal price, ISQLServerServiceFactory tradeOpportunityService)
         {
             var trade = (await tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll()).Where(x => x.Ticker == ticker && x.Status == "Open").OrderBy(x => x.ExecutionDateTime).FirstOrDefault();
             if (trade != null)
-            {               
+            {
                 var currentVale = price * trade.Quantity;
-                var totalInvestment= trade.ExecutionPrice * trade.Quantity;
-                var totalProfitLoss = currentVale- totalInvestment;
+                var totalInvestment = trade.ExecutionPrice * trade.Quantity;
+                var totalProfitLoss = currentVale - totalInvestment;
                 trade.TradeCloseDateTime = DateTime.Now;
                 trade.TradeClosePrice = price;
                 trade.InTrade = false;
@@ -255,7 +262,7 @@ namespace TVBot.Utility
                 trade.ProfitLoss = totalProfitLoss;
                 trade.PercentProfitLoss = (totalProfitLoss / totalInvestment) * 100;
                 trade.ExecutionFee = 0;
-                trade.Notes = "Closed Trade from "+ closedFrom;
+                trade.Notes = "Closed Trade from " + closedFrom;
                 tradeOpportunityService.Create<TradeExecutionOneMin>().Update(trade);
             }
         }
@@ -282,7 +289,7 @@ namespace TVBot.Utility
                             // check if price is greater than 1% of execution price
                             if ((price - trade.ExecutionPrice) / trade.ExecutionPrice * 100 >= 1)
                             {
-                                OneMinCloseTrade(tickerName,"EMA Crossover", price, tradeOpportunityService);
+                                OneMinCloseTrade(tickerName, "EMA Crossover", price, tradeOpportunityService);
                             }
                         }
 

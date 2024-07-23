@@ -1,12 +1,14 @@
-﻿using TVBot.Services.Factory;
+﻿using Microsoft.Extensions.Logging;
+using TVBot.Services.Factory;
 using TVBot.Utility;
 
 namespace TVBot
 {
     internal static class Start
     {
-        public static async void Begin(ISQLServerServiceFactory tradeOpportunityService)
+        public static async void Begin(ISQLServerServiceFactory tradeOpportunityService, ILogger logger)
         {
+
             int count = 400;
             var appPath = AppDomain.CurrentDomain.BaseDirectory;
             var queryFolderPath = Path.Combine(appPath, "JsonQuery");
@@ -39,97 +41,105 @@ namespace TVBot
             {
                 var currentTime = DateTime.Now.TimeOfDay;
                 var startTime = new TimeSpan(9, 08, 0);
-                var endTime = new TimeSpan(15, 30, 0);
+                var endTime = new TimeSpan(19, 30, 0);
                 var tradeCurrentTime = DateTime.Now.TimeOfDay;
                 var tradeStartTime = new TimeSpan(9, 15, 10);
-                var tradeEndTime = new TimeSpan(15, 15, 0);
+                var tradeEndTime = new TimeSpan(19, 15, 0);
+                try
+                {                    
 
-                if (currentTime >= startTime && currentTime <= endTime)
+                    if (currentTime >= startTime && currentTime <= endTime)
+                    {
+
+                        if (count % 2 == 0)
+                        {
+                            UtiityServices.EMA5MReversal(ema5MQueryFilePath, tradeOpportunityService);
+                        }
+                        if (count % 3 == 0)
+                        {
+                            UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
+                        }
+
+                        if (count % 4 == 0)
+                        {
+                            UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
+                        }
+                        if (count % 5 == 0)
+                        {
+                            UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
+                        }
+                        if (count % 6 == 0)
+                        {
+                            UtiityServices.MacdOneHourReversal(macd1HQueryFilePath, tradeOpportunityService);
+                        }
+                        if (count % 7 == 0)
+                        {
+                            UtiityServices.EMATwoHourReversal(ema2HQueryFilePath, tradeOpportunityService);
+
+                        }
+                        if (count % 8 == 0)
+                        {
+                            UtiityServices.EMAFourHourReversal(ema4HQueryFilePath, tradeOpportunityService);
+
+                        }
+                        if (count % 9 == 0)
+                        {
+                            UtiityServices.EMAOneDayReversal(emaDQueryFilePath, tradeOpportunityService);
+
+                        }
+                        if (count % 10 == 0)
+                        {
+                            UtiityServices.MacdOneDayReversal(macdDQueryFilePath, tradeOpportunityService);
+                        }
+                        if (count % 60 == 0)
+                        {
+                            UtiityServices.EMAOneWeekReversal(emaWQueryFilePath, tradeOpportunityService);
+                        }
+                        if (count % 120 == 0)
+                        {
+                            UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
+                        }
+                        if (count % 180 == 0)
+                        {
+                            UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);
+                        }
+
+
+
+
+                        // DownCrossing.EMA30MReversal(ema30MQueryFilePathBearish, tradeOpportunityService);
+
+
+
+                        // DownCrossing.EMAOneHourReversal(ema1HQueryFilePathBearish, tradeOpportunityService);
+
+
+
+                        // DownCrossing.EMATwoHourReversal(ema2HQueryFilePathBearish, tradeOpportunityService);
+
+
+                        // DownCrossing.EMAFourHourReversal(ema4HQueryFilePathBearish, tradeOpportunityService);
+
+
+                        // DownCrossing.EMAOneDayReversal(emaDQueryFilePathBearish, tradeOpportunityService);
+
+
+                        // DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
+                        if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
+                        {
+                            UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
+                            UtiityServices.GetCurrentPriceAndCloseOpenTrades(tradeOpportunityService);
+                            UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
+                        }
+
+
+                    }
+
+                }
+                catch (Exception ex)
                 {
-                   
-                    if (count % 2 == 0)
-                    {
-                        UtiityServices.EMA5MReversal(ema5MQueryFilePath, tradeOpportunityService);
-                    }
-                    if (count % 3 == 0)
-                    {
-                        UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
-                    }
-
-                    if (count % 4 == 0)
-                    {
-                        UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
-                    }
-                    if (count % 5 == 0)
-                    {
-                        UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
-                    }
-                    if (count % 6 == 0)
-                    {
-                        UtiityServices.MacdOneHourReversal(macd1HQueryFilePath, tradeOpportunityService);
-                    }
-                    if (count % 7 == 0)
-                    {
-                        UtiityServices.EMATwoHourReversal(ema2HQueryFilePath, tradeOpportunityService);
-
-                    }
-                    if (count % 8 == 0)
-                    {
-                        UtiityServices.EMAFourHourReversal(ema4HQueryFilePath, tradeOpportunityService);
-
-                    }
-                    if (count % 9 == 0)
-                    {
-                        UtiityServices.EMAOneDayReversal(emaDQueryFilePath, tradeOpportunityService);
-
-                    }
-                    if (count % 10 == 0)
-                    {
-                        UtiityServices.MacdOneDayReversal(macdDQueryFilePath, tradeOpportunityService);
-                    }
-                    if (count % 60 == 0)
-                    {
-                       UtiityServices.EMAOneWeekReversal(emaWQueryFilePath, tradeOpportunityService);
-                    }
-                    if (count % 120 == 0)
-                    {
-                        UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
-                    }
-                    if (count % 180 == 0)
-                    {
-                       UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);
-                    }
-
-
-
-
-                    // DownCrossing.EMA30MReversal(ema30MQueryFilePathBearish, tradeOpportunityService);
-
-
-
-                    // DownCrossing.EMAOneHourReversal(ema1HQueryFilePathBearish, tradeOpportunityService);
-
-
-
-                    // DownCrossing.EMATwoHourReversal(ema2HQueryFilePathBearish, tradeOpportunityService);
-
-
-                    // DownCrossing.EMAFourHourReversal(ema4HQueryFilePathBearish, tradeOpportunityService);
-
-
-                    // DownCrossing.EMAOneDayReversal(emaDQueryFilePathBearish, tradeOpportunityService);
-
-
-                    // DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
-                    if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
-                    {
-                        UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
-                        UtiityServices.GetCurrentPriceAndCloseOpenTrades(tradeOpportunityService);
-                        UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
-                    }
-
-
-                }               
+                    logger.LogError(ex, ex.Message.ToString());
+                }
                 count++;
                 Thread.Sleep(10000);
                 Console.WriteLine(count);

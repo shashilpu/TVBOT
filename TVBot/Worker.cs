@@ -17,13 +17,21 @@ namespace TVBot
             _sqlserviceFactory = sqlserviceFactory;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
+        {           
             while (!stoppingToken.IsCancellationRequested)
             {
-               
-                Start.Begin(_sqlserviceFactory);               
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(DelayInMilliseconds, stoppingToken);
+                try
+                {                 
+                    Start.Begin(_sqlserviceFactory,_logger);
+                    _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                    await Task.Delay(DelayInMilliseconds, stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, ex.Message.ToString());
+                }
+
+
             }
         }
     }

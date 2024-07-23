@@ -1,4 +1,5 @@
-﻿using TVBot.Model.Entities;
+﻿using Serilog;
+using TVBot.Model.Entities;
 using TVBot.Models;
 using TVBot.Services;
 using TVBot.Services.Factory;
@@ -33,6 +34,7 @@ namespace TVBot.Utility
         public static async void EMA1MReversal(string ema1MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
             //  SearchAndSend(ema1MQueryFilePath, trackedElementsEMA1Minutes, "1M_EMA", tradeOpportunityService);
+            // throw new Exception("Exception from UtilityService");
             await OneMin5_9EMACrossOver(ema1MQueryFilePath, tradeOpportunityService);
         }
 
@@ -89,89 +91,100 @@ namespace TVBot.Utility
 
         private static async void SearchAndSend(string queryPath, Dictionary<string, decimal> trackedElements, string algoName, ISQLServerServiceFactory tradeOpportunityService)
         {
-            SearchResponse res = APIServices.Screener(queryPath).Result;
-            if (res != null & res.totalCount > 0)
+            try
             {
-                foreach (var ticker in res.data)
+                throw new Exception("Exception from UtilityService");
+
+                SearchResponse res = APIServices.Screener(queryPath).Result;
+                if (res != null & res.totalCount > 0)
                 {
-                    if (!trackedElements.ContainsKey(ticker.s))
+                    foreach (var ticker in res.data)
                     {
-                        var analystRating = 0.0m;
-                        var beta = 0.0m;
-                        var percentVolalityOneWeek = 0.0m;
-                        var tickerName = ticker.s;
-                        var price = decimal.Parse(ticker.d[6]?.ToString());
-                        var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
-                        var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
-                        if (ticker.d[24] != null)
+                        if (!trackedElements.ContainsKey(ticker.s))
                         {
-                             decimal.TryParse(ticker.d[24].ToString(), out analystRating);
-                        }
-                        if (ticker.d[27] != null)
-                            decimal.TryParse(ticker.d[27]?.ToString(), out beta);
-                        if (ticker.d[28] != null)                           
-                        decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
-                        // trackedElements.Add(tickerName, price);
-                        var Message = "Bullish: " + algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " Beta.= " + beta + " Volality.= " + percentVolalityOneWeek + " AR.= " + analystRating;
-                        if (beta > 1 || percentVolalityOneWeek > 5)
-                        {
-                            // APIServices.SendToTeligrams(Message);
-                            //avoid adding tradeOpportunity if tradeOpportunity with same Ticker added to table today
-                            var lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.Date).OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
-                            if (lastTradeOpportunity == null)
+                            var analystRating = 0.0m;
+                            var beta = 0.0m;
+                            var percentVolalityOneWeek = 0.0m;
+                            var tickerName = ticker.s;
+                            var price = decimal.Parse(ticker.d[6]?.ToString());
+                            var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
+                            var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
+                            if (ticker.d[24] != null)
                             {
-                                await tradeOpportunityService.Create<TradeOpportunity>().Add(new TradeOpportunity
+                                decimal.TryParse(ticker.d[24].ToString(), out analystRating);
+                            }
+                            if (ticker.d[27] != null)
+                                decimal.TryParse(ticker.d[27]?.ToString(), out beta);
+                            if (ticker.d[28] != null)
+                                decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
+                            // trackedElements.Add(tickerName, price);
+                            var Message = "Bullish: " + algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " Beta.= " + beta + " Volality.= " + percentVolalityOneWeek + " AR.= " + analystRating;
+                            if (beta > 1 || percentVolalityOneWeek > 5)
+                            {
+                                // APIServices.SendToTeligrams(Message);
+                                //avoid adding tradeOpportunity if tradeOpportunity with same Ticker added to table today
+                                var lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.Date).OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
+                                if (lastTradeOpportunity == null)
                                 {
-                                    CrossOverDateTime = DateTime.Now,
-                                    Ticker = tickerName,
-                                    PercentChange = change,
-                                    Price = price,
-                                    AlgoName = algoName,
-                                    Volume = volume,
-                                    CrossOverType = "Bullish",
-                                    BetaOneYear = beta,
-                                    PercentVolalityOneWeek = percentVolalityOneWeek
-                                });
-                                // check if crossover happen eariler also except today if so get the last crossover date, price and algoname and send to telegram
-                                var lastTradeOpportunityExceptToday = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(x => x.Ticker == tickerName && x.CrossOverDateTime < DateTime.Now.Date).OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
-                                if (lastTradeOpportunityExceptToday != null)
+                                    await tradeOpportunityService.Create<TradeOpportunity>().Add(new TradeOpportunity
+                                    {
+                                        CrossOverDateTime = DateTime.Now,
+                                        Ticker = tickerName,
+                                        PercentChange = change,
+                                        Price = price,
+                                        AlgoName = algoName,
+                                        Volume = volume,
+                                        CrossOverType = "Bullish",
+                                        BetaOneYear = beta,
+                                        PercentVolalityOneWeek = percentVolalityOneWeek
+                                    });
+                                    // check if crossover happen eariler also except today if so get the last crossover date, price and algoname and send to telegram
+                                    var lastTradeOpportunityExceptToday = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(x => x.Ticker == tickerName && x.CrossOverDateTime < DateTime.Now.Date).OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
+                                    if (lastTradeOpportunityExceptToday != null)
+                                    {
+                                        Message += " Last CrossOver.= " + lastTradeOpportunityExceptToday.CrossOverDateTime + " Price.= " + lastTradeOpportunityExceptToday.Price + " AlgoN.= " + lastTradeOpportunityExceptToday.AlgoName;
+
+                                    }
+                                    APIServices.SendToTeligrams(Message);
+                                }
+                                else
                                 {
-                                    Message += " Last CrossOver.= " + lastTradeOpportunityExceptToday.CrossOverDateTime + " Price.= " + lastTradeOpportunityExceptToday.Price + " AlgoN.= " + lastTradeOpportunityExceptToday.AlgoName;
 
                                 }
-                                APIServices.SendToTeligrams(Message);
+                                //tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
+                                //{
+                                //    TradeOpportunityId = 367,
+                                //    ExecutionDateTime = DateTime.Now,
+                                //    ExecutionPrice = price,
+                                //    Quantity = 1,
+                                //    InTrade = true,
+                                //    TradeType = "Buy",
+                                //    Status = "Open",
+                                //    ProfitLoss = 0,
+                                //    ExecutionFee = 0,
+                                //    Notes = "Initial Buy"
+                                //});
+                                // var tickerData = tickerName.Split(':');
+                                //var dataa = APIServices.GetCurrentPrices("");
+                                //foreach (var item in dataa.Result.data)
+                                //{
+                                //    Console.WriteLine(item.companyName +","+decimal.Parse(item.lastPrice.Replace(",","")) + "," + decimal.Parse(item.perChange.Replace(",", "")));
+                                //}
                             }
-                            else
-                            {
-
-                            }
-                            //tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
-                            //{
-                            //    TradeOpportunityId = 367,
-                            //    ExecutionDateTime = DateTime.Now,
-                            //    ExecutionPrice = price,
-                            //    Quantity = 1,
-                            //    InTrade = true,
-                            //    TradeType = "Buy",
-                            //    Status = "Open",
-                            //    ProfitLoss = 0,
-                            //    ExecutionFee = 0,
-                            //    Notes = "Initial Buy"
-                            //});
-                            // var tickerData = tickerName.Split(':');
-                            //var dataa = APIServices.GetCurrentPrices("");
-                            //foreach (var item in dataa.Result.data)
-                            //{
-                            //    Console.WriteLine(item.companyName +","+decimal.Parse(item.lastPrice.Replace(",","")) + "," + decimal.Parse(item.perChange.Replace(",", "")));
-                            //}
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Exception from UtilityService");
+                Log.Logger.Error(ex, "Exception from UtilityService");
             }
         }
         //impliment a method if 1 min 9,20 ema crossover happen if so add data to tradeopportunity table and call one min execute trade methode
         public static async Task OneMin5_9EMACrossOver(string queryPath, ISQLServerServiceFactory tradeOpportunityService)
         {
+           // throw new Exception("Exception from UtilityService");
             SearchResponse res = await APIServices.Screener(queryPath);
             if (res != null && res.totalCount > 0)
             {
@@ -286,7 +299,7 @@ namespace TVBot.Utility
                     var tickerName = ticker.s;
                     var price = decimal.Parse(ticker.d[6]?.ToString());
                     var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
-                    var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);                    
+                    var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
                     if (ticker.d[27] != null)
                         decimal.TryParse(ticker.d[27]?.ToString(), out beta);
                     if (ticker.d[28] != null)

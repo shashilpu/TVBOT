@@ -97,16 +97,20 @@ namespace TVBot.Utility
                     if (!trackedElements.ContainsKey(ticker.s))
                     {
                         var analystRating = 0.0m;
+                        var beta = 0.0m;
+                        var percentVolalityOneWeek = 0.0m;
                         var tickerName = ticker.s;
                         var price = decimal.Parse(ticker.d[6]?.ToString());
                         var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                         var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
                         if (ticker.d[24] != null)
                         {
-                            analystRating = decimal.Parse(ticker.d[24].ToString());
+                             decimal.TryParse(ticker.d[24].ToString(), out analystRating);
                         }
-                        var beta = decimal.Parse(ticker.d[27]?.ToString());
-                        var percentVolalityOneWeek = decimal.Parse(ticker.d[28]?.ToString());
+                        if (ticker.d[27] != null)
+                            decimal.TryParse(ticker.d[27]?.ToString(), out beta);
+                        if (ticker.d[28] != null)                           
+                        decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
                         // trackedElements.Add(tickerName, price);
                         var Message = "Bullish: " + algoName + "-- " + tickerName + " P.=" + price + " C.=" + change + "% V.= " + volume + " Beta.= " + beta + " Volality.= " + percentVolalityOneWeek + " AR.= " + analystRating;
                         if (beta > 1 || percentVolalityOneWeek > 5)
@@ -139,7 +143,7 @@ namespace TVBot.Utility
                             }
                             else
                             {
-                               
+
                             }
                             //tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
                             //{
@@ -174,17 +178,20 @@ namespace TVBot.Utility
                 foreach (var ticker in res.data)
                 {
                     var analystRating = 0.0m;
+                    var beta = 0.0m;
+                    var percentVolalityOneWeek = 0.0m;
                     var tickerName = ticker.s;
                     var price = decimal.Parse(ticker.d[6]?.ToString());
                     var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                     var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
                     if (ticker.d[24] != null)
                     {
-                        analystRating = decimal.Parse(ticker.d[24].ToString());
+                        decimal.TryParse(ticker.d[24].ToString(), out analystRating);
                     }
-
-                    var beta = decimal.Parse(ticker.d[27]?.ToString());
-                    var percentVolalityOneWeek = decimal.Parse(ticker.d[28]?.ToString());
+                    if (ticker.d[27] != null)
+                        decimal.TryParse(ticker.d[27]?.ToString(), out beta);
+                    if (ticker.d[28] != null)
+                        decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
                     if (beta > 1 || percentVolalityOneWeek > 5)
                     {
                         // avoid adding tradeOpportunity if tradeOpportunity with same Ticker added to table 15 min ago
@@ -274,12 +281,16 @@ namespace TVBot.Utility
             {
                 foreach (var ticker in res.data)
                 {
+                    var beta = 0.0m;
+                    var percentVolalityOneWeek = 0.0m;
                     var tickerName = ticker.s;
                     var price = decimal.Parse(ticker.d[6]?.ToString());
                     var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
-                    var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
-                    var beta = decimal.Parse(ticker.d[27]?.ToString());
-                    var percentVolalityOneWeek = decimal.Parse(ticker.d[28]?.ToString());
+                    var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);                    
+                    if (ticker.d[27] != null)
+                        decimal.TryParse(ticker.d[27]?.ToString(), out beta);
+                    if (ticker.d[28] != null)
+                        decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
 
                     if (await IsTradeOpen(tickerName, tradeOpportunityService))
                     {
@@ -305,14 +316,16 @@ namespace TVBot.Utility
             foreach (var trade in openTrades)
             {
                 var result = await APIServices.GetCurrentPriceFromFivePaise(trade.Ticker.Split(':')[1]);
-
-                var currentPrice = decimal.Parse(result.stocks.price + "." + result.stocks.d_price);
-                if ((currentPrice - trade.ExecutionPrice) > 0)
+                if (result != null)
                 {
-                    // check if price is greater than 1% of execution price
-                    if ((currentPrice - trade.ExecutionPrice) / trade.ExecutionPrice * 100 >= 1)
+                    var currentPrice = decimal.Parse(result.stocks.price + "." + result.stocks.d_price);
+                    if ((currentPrice - trade.ExecutionPrice) > 0)
                     {
-                        OneMinCloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
+                        // check if price is greater than 1% of execution price
+                        if ((currentPrice - trade.ExecutionPrice) / trade.ExecutionPrice * 100 >= 1)
+                        {
+                            OneMinCloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
+                        }
                     }
                 }
             }

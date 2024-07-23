@@ -1,0 +1,6 @@
+New-Service -Name "TVBOTService" -BinaryPathName C:\TvBotService\TVBot.exe
+
+Remove-Service -Name "TVBOTService"
+
+
+sc.exe delete "TVBOTService"

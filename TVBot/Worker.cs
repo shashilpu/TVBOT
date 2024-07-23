@@ -20,9 +20,8 @@ namespace TVBot
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-               // Class1.HollaAsync();
-                Start.Begin(_sqlserviceFactory);
                
+                Start.Begin(_sqlserviceFactory);               
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(DelayInMilliseconds, stoppingToken);
             }

@@ -31,10 +31,7 @@ namespace TVBot
             services.AddHostedService<Worker>();
             services.AddMemoryCache();
         });
-
-
     }
-
 
 }
 

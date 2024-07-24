@@ -41,10 +41,10 @@ namespace TVBot
             {
                 var currentTime = DateTime.Now.TimeOfDay;
                 var startTime = new TimeSpan(9, 08, 0);
-                var endTime = new TimeSpan(19, 30, 0);
+                var endTime = new TimeSpan(15, 30, 0);
                 var tradeCurrentTime = DateTime.Now.TimeOfDay;
                 var tradeStartTime = new TimeSpan(9, 15, 10);
-                var tradeEndTime = new TimeSpan(19, 15, 0);
+                var tradeEndTime = new TimeSpan(14, 15, 0);
                 try
                 {                    
 
@@ -128,9 +128,10 @@ namespace TVBot
                         if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
                         {
                             UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
-                            UtiityServices.GetCurrentPriceAndCloseOpenTrades(tradeOpportunityService);
-                            UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
+                          
                         }
+                        UtiityServices.GetCurrentPriceAndCloseOpenTrades(tradeOpportunityService);
+                        UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
 
 
                     }

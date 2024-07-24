@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Serilog;
+using System.Text;
 using System.Text.Json;
 using TVBot.Model;
 using TVBot.Models;
@@ -46,7 +47,7 @@ namespace TVBot.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error: {ex.Message}");
+                    Log.Logger.Error(ex, ex.Message);
                 }
                 return searchResponse;
 
@@ -80,7 +81,7 @@ namespace TVBot.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error: {ex.Message}");
+                    Log.Logger.Error(ex, ex.Message);
 
                 }
 
@@ -110,13 +111,13 @@ namespace TVBot.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error sending message: {ex.Message}");
+                    Log.Logger.Error(ex, ex.Message);
                     SendToTeligram(ex.Message);
                 }
             }
         }
         // write a get method to get the data from the api url is https://www.nseindia.com/api/quote-equity?symbol=CIPLA
-        public static async Task<MCPriceInfo> GetCurrentPrices(string scIdList,string scId)
+        public static async Task<MCPriceInfo> GetCurrentPrices(string scIdList, string scId)
         {
             string url = $"https://api.moneycontrol.com/mcapi/v1/stock/get-stock-price?scIdList={scIdList}&scId={scId}";// + ticker;
             using (HttpClient client = new HttpClient())
@@ -135,9 +136,8 @@ namespace TVBot.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error sending message: {ex.Message}");
-                   //  return ex.Message;
-                   return null;
+                    Log.Logger.Error(ex, ex.Message);
+                    return null;
                 }
             }
         }
@@ -147,8 +147,8 @@ namespace TVBot.Services
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-              //  client.DefaultRequestHeaders.Add("Origin", "https://moneycontrol.com");
-              //  client.DefaultRequestHeaders.Add("Referer", "https://moneycontrol.com/");
+                //  client.DefaultRequestHeaders.Add("Origin", "https://moneycontrol.com");
+                //  client.DefaultRequestHeaders.Add("Referer", "https://moneycontrol.com/");
                 try
                 {
                     HttpResponseMessage response = client.GetAsync(url).Result;
@@ -160,8 +160,7 @@ namespace TVBot.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error sending message: {ex.Message}");
-                    //  return ex.Message;
+                    Log.Logger.Error(ex, ex.Message);
                     return null;
                 }
             }

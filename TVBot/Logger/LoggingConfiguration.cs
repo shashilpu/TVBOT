@@ -11,7 +11,7 @@ namespace TVBot.Logger
         public static void ConfigureLogging(IConfiguration configuration)
         {
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
+                .MinimumLevel.Warning()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .WriteTo.MSSqlServer(
                     connectionString: configuration.GetConnectionString("DB_CONNECTION_STRING"),

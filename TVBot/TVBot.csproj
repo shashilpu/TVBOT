@@ -39,6 +39,9 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="JsonQuery\AllNSEStock\allNSEStockPriceQuery.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="JsonQuery\AllTimeDarvasBoxBullishQuery.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

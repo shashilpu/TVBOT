@@ -36,6 +36,9 @@ namespace TVBot
             var ema2HQueryFilePathBearish = Path.Combine(BearishQueryFilePath, "ema2HQuery.json");
             var emaDQueryFilePathBearish = Path.Combine(BearishQueryFilePath, "emaDQuery.json");
 
+            var allNSEStockQueryFilePath = Path.Combine(queryFolderPath, "AllNSEStock");
+            var allNSEStockPriceQuery = Path.Combine(allNSEStockQueryFilePath, "allNSEStockPriceQuery.json");
+
             // run the below code in a loop when time is between 9:15 to 15:30
             while (true)
             {
@@ -50,6 +53,7 @@ namespace TVBot
 
                     if (currentTime >= startTime && currentTime <= endTime)
                     {
+                        UtiityServices.GetCurrentPriceAllNSEStockAndCloseOpenTrades(tradeOpportunityService, allNSEStockPriceQuery);
 
                         if (count % 2 == 0)
                         {
@@ -130,8 +134,8 @@ namespace TVBot
                             UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
                           
                         }
-                        UtiityServices.GetCurrentPriceAndCloseOpenTrades(tradeOpportunityService);
-                        UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
+                      //  UtiityServices.GetCurrentPriceAllNSEStockAndCloseOpenTrades(tradeOpportunityService, allNSEStockPriceQuery);
+                      //  UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
 
 
                     }

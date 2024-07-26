@@ -390,6 +390,42 @@ namespace TVBot.Utility
                 Log.Logger.Error(ex, ex.Message, ex.InnerException);
             }
         }
+        public static async void GetCurrentPriceAllNSEStockAndCloseOpenTrades(ISQLServerServiceFactory tradeOpportunityService,string queryPath)
+        {
+            try
+            {
+                SearchResponse res = await APIServices.Screener(queryPath);
+                if (res != null && res.totalCount > 0)
+                {
+
+                    var openTrades = (await tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll()).ToList().Where(x => x.Status == "Open");
+                    if (openTrades != null)
+                    {
+                        foreach (var trade in openTrades)
+                        {
+                            var ticker = res.data.FirstOrDefault(t => t.s == trade.Ticker);
+                            var currentPrice = decimal.Parse(ticker.d[6]?.ToString());
+                            var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
+                            var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
+                            var onePercentOfCP=currentPrice * 0.01m;
+                            var cPWithOnePercentIncrease = currentPrice + onePercentOfCP;
+                            if ((currentPrice - trade.ExecutionPrice) > 0)
+                            {
+                                // check if price is greater than 1% of execution price
+                                if (currentPrice > cPWithOnePercentIncrease)
+                                {
+                                    OneMinCloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, ex.Message, ex.InnerException);
+            }
+        }
     }
 }
 

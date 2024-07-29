@@ -117,7 +117,7 @@ namespace TVBot.Utility
                             if (ticker.d[28] != null)
                                 decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
                             // trackedElements.Add(tickerName, price)
-                            var tickerLink = "https://in.tradingview.com/chart/?symbol=" + tickerName;
+                            var tickerLink =$"<a href=https://in.tradingview.com/chart/?symbol={tickerName}>{tickerName}</a>";
                             var Message = "Bullish: " + algoName + "-- " + tickerLink + " P.=" + price + " C.=" + change + "% V.= " + volume + " Beta.= " + beta + " Volality.= " + percentVolalityOneWeek + " AR.= " + analystRating;
                             if (beta > 1 || percentVolalityOneWeek > 5 || volume > 5)
                             {

@@ -277,7 +277,7 @@ namespace TVBot.Utility
                     TradeOpportunityOneMinId = tradeOpportunityId,
                     ExecutionDateTime = DateTime.Now,
                     ExecutionPrice = price,
-                    Quantity = 100,
+                    Quantity = quantity,
                     InTrade = true,
                     TradeType = "Buy",
                     Status = "Open",

@@ -49,13 +49,13 @@ namespace TVBot
                 var tradeStartTime = new TimeSpan(9, 15, 10);
                 var tradeEndTime = new TimeSpan(14, 15, 0);
                 try
-                {                    
+                {
 
-                    if (currentTime >= startTime && currentTime <= endTime)
+                    if (currentTime >= startTime && currentTime <= endTime && DateTime.Today.DayOfWeek != DayOfWeek.Saturday && DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
                     {
                         if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
                         {
-                           // Thread.Sleep(10000);
+                            // Thread.Sleep(10000);
                             UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
 
                         }
@@ -146,10 +146,10 @@ namespace TVBot
 
 
                         // DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
-                       
+
                         Thread.Sleep(10000);
                         UtiityServices.GetCurrentPriceAllNSEStockAndCloseOpenTrades(tradeOpportunityService, allNSEStockPriceQuery);
-                      //  UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
+                        //  UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
 
 
                     }
@@ -157,9 +157,9 @@ namespace TVBot
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, ex.Message.ToString(),ex.InnerException);
+                    logger.LogError(ex, ex.Message.ToString(), ex.InnerException);
                 }
-                count++;      
+                count++;
                 Console.WriteLine("Count: " + count);
             }
         }

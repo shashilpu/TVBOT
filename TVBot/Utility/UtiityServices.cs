@@ -118,7 +118,7 @@ namespace TVBot.Utility
                                 decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
                             var tickerLink = "https://in.tradingview.com/chart/?symbol=" + tickerName;
                             var Message = $"Bullish: {algoName} -- <a href=\"{tickerLink}\">{tickerName}</a> P.={price} C.={change}% V.={volume} Beta.={beta} Volality.={percentVolalityOneWeek} AR.={analystRating}";
-                            if (beta > 1 || percentVolalityOneWeek > 5 || volume > 5)
+                            if (beta > 1 || percentVolalityOneWeek > 5 || volume > 10)
                             {
                                 // APIServices.SendToTeligrams(Message);
                                 //avoid adding tradeOpportunity if tradeOpportunity with same Ticker added to table today
@@ -192,7 +192,7 @@ namespace TVBot.Utility
                             decimal.TryParse(ticker.d[27]?.ToString(), out beta);
                         if (ticker.d[28] != null)
                             decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
-                        if (beta > 1 || percentVolalityOneWeek > 5 || volume > 5)
+                        if (beta > 1 || percentVolalityOneWeek > 5 || volume > 10)
                         {
                             // avoid adding tradeOpportunity if tradeOpportunity with same Ticker added to table 15 min ago
                             var lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunityOneMin>().GetAll())
@@ -309,40 +309,47 @@ namespace TVBot.Utility
         }
         public static async Task ExecuteTrade(int tradeOpportunityId, string tickerName, decimal price, ISQLServerServiceFactory tradeOpportunityService)
         {
+            var tradeCurrentTime = DateTime.Now.TimeOfDay;
+            var tradeStartTime = new TimeSpan(9, 15, 10);
+            var tradeEndTime = new TimeSpan(14, 15, 0);
             try
             {
-                int quantity = (int)Math.Abs(10000 / price);
-                var totalInvestment = quantity * price;
-                var currentVale = price * quantity;
-                bool isRepeatedTrade = false;
-                if (bullRepeat > 0)
-                {
-                    bullRepeat--;
-                    isRepeatedTrade = true;
-                }
-                else
-                {
-                    isRepeatedTrade = false;
-                }
-                await tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
-                {
-                    TradeOpportunityId = tradeOpportunityId,
-                    ExecutionDateTime = DateTime.Now,
-                    ExecutionPrice = price,
-                    Quantity = quantity,
-                    InTrade = true,
-                    TradeType = "Buy",
-                    Status = "Open",
-                    ProfitLoss = 0,
-                    ExecutionFee = 0,
-                    Notes = "Initial Buy",
-                    Ticker = tickerName,
-                    TrargetPrice = price + (price * 0.01m),
-                    InvestedAmount = totalInvestment,
-                    IsRepeatedTrade = isRepeatedTrade,
-                    CurrentProfitLossOnTrade = currentVale - totalInvestment
 
-                });
+                if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
+                {
+                    int quantity = (int)Math.Abs(10000 / price);
+                    var totalInvestment = quantity * price;
+                    var currentVale = price * quantity;
+                    bool isRepeatedTrade = false;
+                    if (bullRepeat > 0)
+                    {
+                        bullRepeat--;
+                        isRepeatedTrade = true;
+                    }
+                    else
+                    {
+                        isRepeatedTrade = false;
+                    }
+                    await tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
+                    {
+                        TradeOpportunityId = tradeOpportunityId,
+                        ExecutionDateTime = DateTime.Now,
+                        ExecutionPrice = price,
+                        Quantity = quantity,
+                        InTrade = true,
+                        TradeType = "Buy",
+                        Status = "Open",
+                        ProfitLoss = 0,
+                        ExecutionFee = 0,
+                        Notes = "Initial Buy",
+                        Ticker = tickerName,
+                        TrargetPrice = price + (price * 0.01m),
+                        InvestedAmount = totalInvestment,
+                        IsRepeatedTrade = isRepeatedTrade,
+                        CurrentProfitLossOnTrade = currentVale - totalInvestment
+
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -358,7 +365,7 @@ namespace TVBot.Utility
             {
                 var trade = (await tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll()).Where(x => x.Ticker == ticker && x.Status == "Open").OrderBy(x => x.ExecutionDateTime).FirstOrDefault();
                 if (trade != null)
-                {                   
+                {
                     var currentVale = price * trade.Quantity;
                     var totalInvestment = trade.ExecutionPrice * trade.Quantity;
                     var totalProfitLoss = currentVale - totalInvestment;
@@ -396,9 +403,53 @@ namespace TVBot.Utility
                     trade.Status = "Closed";
                     trade.ProfitLoss = totalProfitLoss;
                     trade.PercentProfitLoss = (totalProfitLoss / totalInvestment) * 100;
-                    trade.ExecutionFee = 0;                    
+                    trade.ExecutionFee = 0;
                     trade.Notes = "Closed Trade from " + closedFrom;
                     tradeOpportunityService.Create<TradeExecution>().Update(trade);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, ex.Message, ex.InnerException);
+            }
+
+        }
+        public static async void UpdatePrice(string ticker, decimal price, ISQLServerServiceFactory tradeOpportunityService)
+        {
+            try
+            {
+
+                var trade = (await tradeOpportunityService.Create<TradeExecution>().GetAll()).Where(x => x.Ticker == ticker && x.Status == "Open").OrderBy(x => x.ExecutionDateTime).FirstOrDefault();
+                if (trade != null)
+                {
+                    var currentVale = price * trade.Quantity;
+                    var totalInvestment = trade.ExecutionPrice * trade.Quantity;
+                    var totalProfitLoss = currentVale - totalInvestment;
+                    trade.CurrentPrice = price;
+                    trade.CurrentProfitLossOnTrade = totalProfitLoss;
+                    tradeOpportunityService.Create<TradeExecution>().Update(trade);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, ex.Message, ex.InnerException);
+            }
+
+        }
+        public static async void OneMInUpdatePrice(string ticker, decimal price, ISQLServerServiceFactory tradeOpportunityService)
+        {
+            try
+            {
+
+                var trade = (await tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll()).Where(x => x.Ticker == ticker && x.Status == "Open").OrderBy(x => x.ExecutionDateTime).FirstOrDefault();
+                if (trade != null)
+                {
+                    var currentVale = price * trade.Quantity;
+                    var totalInvestment = trade.ExecutionPrice * trade.Quantity;
+                    var totalProfitLoss = currentVale - totalInvestment;
+                    trade.CurrentPrice = price;
+                    trade.CurrentProfitLossOnTrade = totalProfitLoss;
+                    tradeOpportunityService.Create<TradeExecutionOneMin>().Update(trade);
                 }
             }
             catch (Exception ex)
@@ -501,15 +552,17 @@ namespace TVBot.Utility
                             var executionPrice = trade.ExecutionPrice;
                             var onePercentOfEP = executionPrice * 0.01m;
                             var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
-                            if ((currentPrice - onePercentOfEP) > 0)
+                            if (currentPrice > ePWithOnePercentIncrease)
                             {
-                                // check if price is greater than 1% of execution price
-                                if (currentPrice > ePWithOnePercentIncrease)
-                                {
-                                    oneMinRepeat++;
-                                    OneMinCloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
-                                }
 
+                                oneMinRepeat++;
+                                OneMinCloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
+
+
+                            }
+                            else
+                            {
+                                OneMInUpdatePrice(trade.Ticker, currentPrice, tradeOpportunityService);
                             }
 
                         }
@@ -526,14 +579,18 @@ namespace TVBot.Utility
                             var executionPrice = trade.ExecutionPrice;
                             var onePercentOfEP = executionPrice * 0.01m;
                             var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
-                            if ((currentPrice - executionPrice) > 0)
+                            if (currentPrice > ePWithOnePercentIncrease)
                             {
-                                // check if price is greater than 1% of execution price
-                                if (currentPrice > ePWithOnePercentIncrease)
-                                {
-                                    bullRepeat++;
-                                    CloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
-                                }
+
+                                bullRepeat++;
+                                CloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
+
+                            }
+                            else
+                            {
+
+                                UpdatePrice(trade.Ticker, currentPrice, tradeOpportunityService);
+
                             }
                         }
                     }

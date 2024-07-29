@@ -116,9 +116,8 @@ namespace TVBot.Utility
                                 decimal.TryParse(ticker.d[27]?.ToString(), out beta);
                             if (ticker.d[28] != null)
                                 decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
-                            // trackedElements.Add(tickerName, price)
-                            var tickerLink =$"<a href=https://in.tradingview.com/chart/?symbol={tickerName}>{tickerName}</a>";
-                            var Message = "Bullish: " + algoName + "-- " + tickerLink + " P.=" + price + " C.=" + change + "% V.= " + volume + " Beta.= " + beta + " Volality.= " + percentVolalityOneWeek + " AR.= " + analystRating;
+                            var tickerLink = "https://in.tradingview.com/chart/?symbol=" + tickerName;
+                            var Message = $"Bullish: {algoName} -- <a href=\"{tickerLink}\">{tickerName}</a> P.={price} C.={change}% V.={volume} Beta.={beta} Volality.={percentVolalityOneWeek} AR.={analystRating}";
                             if (beta > 1 || percentVolalityOneWeek > 5 || volume > 5)
                             {
                                 // APIServices.SendToTeligrams(Message);
@@ -269,7 +268,16 @@ namespace TVBot.Utility
             int quantity = (int)Math.Abs(10000 / price);
             var totalInvestment = quantity * price;
             var currentVale = price * quantity;
-
+            bool isRepeatedTrade = false;
+            if (oneMinRepeat > 0)
+            {
+                oneMinRepeat--;
+                isRepeatedTrade = true;
+            }
+            else
+            {
+                isRepeatedTrade = false;
+            }
             try
             {
                 await tradeOpportunityService.Create<TradeExecutionOneMin>().Add(new TradeExecutionOneMin
@@ -285,9 +293,10 @@ namespace TVBot.Utility
                     ExecutionFee = 0,
                     Notes = "Initial Buy",
                     Ticker = tickerName,
-                    TrargetPrice = price + (price * 0.005m),
+                    TrargetPrice = price + (price * 0.01m),
                     InvestedAmount = totalInvestment,
-                    CurrentProfitLossOnTrade = currentVale - totalInvestment                  
+                    IsRepeatedTrade = isRepeatedTrade,
+                    CurrentProfitLossOnTrade = currentVale - totalInvestment
 
 
                 });
@@ -305,6 +314,16 @@ namespace TVBot.Utility
                 int quantity = (int)Math.Abs(10000 / price);
                 var totalInvestment = quantity * price;
                 var currentVale = price * quantity;
+                bool isRepeatedTrade = false;
+                if (bullRepeat > 0)
+                {
+                    bullRepeat--;
+                    isRepeatedTrade = true;
+                }
+                else
+                {
+                    isRepeatedTrade = false;
+                }
                 await tradeOpportunityService.Create<TradeExecution>().Add(new TradeExecution
                 {
                     TradeOpportunityId = tradeOpportunityId,
@@ -318,8 +337,9 @@ namespace TVBot.Utility
                     ExecutionFee = 0,
                     Notes = "Initial Buy",
                     Ticker = tickerName,
-                    TrargetPrice = price + (price * 0.005m),
+                    TrargetPrice = price + (price * 0.01m),
                     InvestedAmount = totalInvestment,
+                    IsRepeatedTrade = isRepeatedTrade,
                     CurrentProfitLossOnTrade = currentVale - totalInvestment
 
                 });
@@ -335,10 +355,10 @@ namespace TVBot.Utility
         {
             try
 
-            {               
+            {
                 var trade = (await tradeOpportunityService.Create<TradeExecutionOneMin>().GetAll()).Where(x => x.Ticker == ticker && x.Status == "Open").OrderBy(x => x.ExecutionDateTime).FirstOrDefault();
                 if (trade != null)
-                {
+                {                   
                     var currentVale = price * trade.Quantity;
                     var totalInvestment = trade.ExecutionPrice * trade.Quantity;
                     var totalProfitLoss = currentVale - totalInvestment;
@@ -349,7 +369,7 @@ namespace TVBot.Utility
                     trade.ProfitLoss = totalProfitLoss;
                     trade.PercentProfitLoss = (totalProfitLoss / totalInvestment) * 100;
                     trade.ExecutionFee = 0;
-                    trade.Notes = "Closed Trade from " + closedFrom;                    
+                    trade.Notes = "Closed Trade from " + closedFrom;
                     tradeOpportunityService.Create<TradeExecutionOneMin>().Update(trade);
                 }
             }
@@ -362,8 +382,8 @@ namespace TVBot.Utility
         public static async void CloseTrade(string ticker, string closedFrom, decimal price, ISQLServerServiceFactory tradeOpportunityService)
         {
             try
-
             {
+
                 var trade = (await tradeOpportunityService.Create<TradeExecution>().GetAll()).Where(x => x.Ticker == ticker && x.Status == "Open").OrderBy(x => x.ExecutionDateTime).FirstOrDefault();
                 if (trade != null)
                 {
@@ -376,7 +396,7 @@ namespace TVBot.Utility
                     trade.Status = "Closed";
                     trade.ProfitLoss = totalProfitLoss;
                     trade.PercentProfitLoss = (totalProfitLoss / totalInvestment) * 100;
-                    trade.ExecutionFee = 0;
+                    trade.ExecutionFee = 0;                    
                     trade.Notes = "Closed Trade from " + closedFrom;
                     tradeOpportunityService.Create<TradeExecution>().Update(trade);
                 }
@@ -478,13 +498,15 @@ namespace TVBot.Utility
                             var currentPrice = decimal.Parse(ticker.d[6]?.ToString());
                             var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                             var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
-                            var onePercentOfCP = currentPrice * 0.01m;
-                            var cPWithOnePercentIncrease = currentPrice + onePercentOfCP;
-                            if ((currentPrice - trade.ExecutionPrice) > 0)
+                            var executionPrice = trade.ExecutionPrice;
+                            var onePercentOfEP = executionPrice * 0.01m;
+                            var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
+                            if ((currentPrice - onePercentOfEP) > 0)
                             {
                                 // check if price is greater than 1% of execution price
-                                if (currentPrice > cPWithOnePercentIncrease)
+                                if (currentPrice > ePWithOnePercentIncrease)
                                 {
+                                    oneMinRepeat++;
                                     OneMinCloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
                                 }
 
@@ -501,13 +523,15 @@ namespace TVBot.Utility
                             var currentPrice = decimal.Parse(ticker.d[6]?.ToString());
                             var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                             var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
-                            var onePercentOfCP = currentPrice * 0.01m;
-                            var cPWithOnePercentIncrease = currentPrice + onePercentOfCP;
-                            if ((currentPrice - trade.ExecutionPrice) > 0)
+                            var executionPrice = trade.ExecutionPrice;
+                            var onePercentOfEP = executionPrice * 0.01m;
+                            var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
+                            if ((currentPrice - executionPrice) > 0)
                             {
                                 // check if price is greater than 1% of execution price
-                                if (currentPrice > cPWithOnePercentIncrease)
+                                if (currentPrice > ePWithOnePercentIncrease)
                                 {
+                                    bullRepeat++;
                                     CloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
                                 }
                             }

@@ -95,7 +95,7 @@ namespace TVBot.Services
         {
 
 
-            string apiUrl = $"https://api.telegram.org/bot{botToken}/sendMessage?chat_id={chatId}&text={Uri.EscapeDataString(message)}";
+            string apiUrl = $"https://api.telegram.org/bot{botToken}/sendMessage?chat_id={chatId}&text={Uri.EscapeDataString(message)}&parse_mode=HTML";
 
             using (HttpClient client = new HttpClient())
             {

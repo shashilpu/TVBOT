@@ -53,7 +53,12 @@ namespace TVBot
 
                     if (currentTime >= startTime && currentTime <= endTime)
                     {
-                       
+                        if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
+                        {
+                           // Thread.Sleep(10000);
+                            UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
+
+                        }
 
                         if (count % 3 == 0)
                         {
@@ -141,12 +146,7 @@ namespace TVBot
 
 
                         // DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
-                        if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
-                        {
-                            Thread.Sleep(10000);
-                            UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
-                          
-                        }
+                       
                         Thread.Sleep(10000);
                         UtiityServices.GetCurrentPriceAllNSEStockAndCloseOpenTrades(tradeOpportunityService, allNSEStockPriceQuery);
                       //  UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
@@ -159,7 +159,8 @@ namespace TVBot
                 {
                     logger.LogError(ex, ex.Message.ToString(),ex.InnerException);
                 }
-                count++;               
+                count++;      
+                Console.WriteLine("Count: " + count);
             }
         }
     }

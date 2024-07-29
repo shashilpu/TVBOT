@@ -7,7 +7,7 @@ namespace TVBot.Model.Entities
     public class TradeExecution
     {
         [Key]
-        public int TradeExecutionId { get; set; }       
+        public int TradeExecutionId { get; set; }
         public string Ticker { get; set; }
         public DateTime ExecutionDateTime { get; set; } = DateTime.Now;
         public DateTime? TradeCloseDateTime { get; set; } = null;
@@ -17,8 +17,8 @@ namespace TVBot.Model.Entities
         public decimal? CurrentProfitLossOnTrade { get; set; }
         public decimal Quantity { get; set; }
         public decimal TrargetPrice { get; set; }
-        public decimal? TradeClosePrice { get; set; }       
-        public decimal? ProfitLoss { get; set; }        
+        public decimal? TradeClosePrice { get; set; }
+        public decimal? ProfitLoss { get; set; }
         public decimal? PercentProfitLoss { get; set; }
         public bool InTrade { get; set; }
         public string TradeType { get; set; }
@@ -26,7 +26,7 @@ namespace TVBot.Model.Entities
         public decimal TargetPercentGain { get; set; }
         public decimal? ExecutionFee { get; set; }
         public string? Notes { get; set; }
-        public bool IsRepeatedTrade { get; set; }
+        public bool? IsRepeatedTrade { get; set; }
         [ForeignKey("TradeOpportunity")]
         public int TradeOpportunityId { get; set; }
         public TradeOpportunity TradeOpportunity { get; set; }

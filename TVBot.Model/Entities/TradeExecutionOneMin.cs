@@ -26,7 +26,7 @@ namespace TVBot.Model.Entities
         public decimal TargetPercentGain { get; set; }       
         public decimal? ExecutionFee { get; set; }
         public string? Notes { get; set; }
-        public bool IsRepeatedTrade { get; set; }
+        public bool? IsRepeatedTrade { get; set; }
         [ForeignKey("TradeOpportunityOneMin")]
         public int TradeOpportunityOneMinId { get; set; }
         public TradeOpportunityOneMin TradeOpportunityOneMin { get; set; }

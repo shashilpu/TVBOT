@@ -55,66 +55,66 @@ namespace TVBot
                     {
                        
 
-                        if (count % 2 == 0)
+                        if (count % 3 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.EMA5MReversal(ema5MQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 3 == 0)
+                        if (count % 5 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
                         }
 
-                        if (count % 4 == 0)
+                        if (count % 8 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 5 == 0)
+                        if (count % 13 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 6 == 0)
+                        if (count % 17 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.MacdOneHourReversal(macd1HQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 7 == 0)
+                        if (count % 19 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.EMATwoHourReversal(ema2HQueryFilePath, tradeOpportunityService);
 
                         }
-                        if (count % 8 == 0)
+                        if (count % 23 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.EMAFourHourReversal(ema4HQueryFilePath, tradeOpportunityService);
 
                         }
-                        if (count % 9 == 0)
+                        if (count % 29 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.EMAOneDayReversal(emaDQueryFilePath, tradeOpportunityService);
 
                         }
-                        if (count % 10 == 0)
+                        if (count % 33 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.MacdOneDayReversal(macdDQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 60 == 0)
+                        if (count % 89 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.EMAOneWeekReversal(emaWQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 120 == 0)
+                        if (count % 144 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 180 == 0)
+                        if (count % 377 == 0)
                         {
                             Thread.Sleep(10000);
                             UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);
@@ -159,9 +159,7 @@ namespace TVBot
                 {
                     logger.LogError(ex, ex.Message.ToString(),ex.InnerException);
                 }
-                count++;
-                Thread.Sleep(10000);
-                Console.WriteLine(count);
+                count++;               
             }
         }
     }

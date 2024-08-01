@@ -118,7 +118,7 @@ namespace TVBot.Utility
                                 decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
                             var tickerLink = "https://in.tradingview.com/chart/?symbol=" + tickerName;
                             var Message = $"Bullish: {algoName} -- <a href=\"{tickerLink}\">{tickerName}</a> P.={price} C.={change}% V.={volume} Beta.={beta} Volality.={percentVolalityOneWeek} AR.={analystRating}";
-                            if (beta > 1 || percentVolalityOneWeek > 5 || volume > 10)
+                            if (analystRating >= 1 && analystRating <2)
                             {
                                 // APIServices.SendToTeligrams(Message);
                                 //avoid adding tradeOpportunity if tradeOpportunity with same Ticker added to table today
@@ -192,7 +192,7 @@ namespace TVBot.Utility
                             decimal.TryParse(ticker.d[27]?.ToString(), out beta);
                         if (ticker.d[28] != null)
                             decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
-                        if (beta > 1 || percentVolalityOneWeek > 5 || volume > 10)
+                        if (analystRating >= 1 && analystRating <2)
                         {
                             // avoid adding tradeOpportunity if tradeOpportunity with same Ticker added to table 15 min ago
                             var lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunityOneMin>().GetAll())
@@ -358,7 +358,7 @@ namespace TVBot.Utility
 
         }
         //implement a methode to close trade and update trade execution table
-        public static async void OneMinCloseTrade(string ticker, string closedFrom, decimal price, ISQLServerServiceFactory tradeOpportunityService)
+        public static async Task OneMinCloseTrade(string ticker, string closedFrom, decimal price, ISQLServerServiceFactory tradeOpportunityService)
         {
             try
 
@@ -386,7 +386,7 @@ namespace TVBot.Utility
             }
 
         }
-        public static async void CloseTrade(string ticker, string closedFrom, decimal price, ISQLServerServiceFactory tradeOpportunityService)
+        public static async Task CloseTrade(string ticker, string closedFrom, decimal price, ISQLServerServiceFactory tradeOpportunityService)
         {
             try
             {
@@ -414,7 +414,7 @@ namespace TVBot.Utility
             }
 
         }
-        public static async void UpdatePrice(string ticker, decimal price, ISQLServerServiceFactory tradeOpportunityService)
+        public static async Task UpdatePrice(string ticker, decimal price, ISQLServerServiceFactory tradeOpportunityService)
         {
             try
             {
@@ -436,7 +436,7 @@ namespace TVBot.Utility
             }
 
         }
-        public static async void OneMInUpdatePrice(string ticker, decimal price, ISQLServerServiceFactory tradeOpportunityService)
+        public static async Task OneMInUpdatePrice(string ticker, decimal price, ISQLServerServiceFactory tradeOpportunityService)
         {
             try
             {
@@ -532,7 +532,7 @@ namespace TVBot.Utility
                 Log.Logger.Error(ex, ex.Message, ex.InnerException);
             }
         }
-        public static async void GetCurrentPriceAllNSEStockAndCloseOpenTrades(ISQLServerServiceFactory tradeOpportunityService, string queryPath)
+        public static async Task GetCurrentPriceAllNSEStockAndCloseOpenTrades(ISQLServerServiceFactory tradeOpportunityService, string queryPath)
         {
             try
             {
@@ -546,23 +546,26 @@ namespace TVBot.Utility
                         foreach (var trade in openTrades)
                         {
                             var ticker = res.data.FirstOrDefault(t => t.s == trade.Ticker);
-                            var currentPrice = decimal.Parse(ticker.d[6]?.ToString());
-                            var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
-                            var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
-                            var executionPrice = trade.ExecutionPrice;
-                            var onePercentOfEP = executionPrice * 0.01m;
-                            var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
-                            if (currentPrice > ePWithOnePercentIncrease)
+                            if (ticker != null)
                             {
+                                var currentPrice = decimal.Parse(ticker.d[6]?.ToString());
+                                var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
+                                var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
+                                var executionPrice = trade.ExecutionPrice;
+                                var onePercentOfEP = executionPrice * 0.005m;
+                                var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
+                                if (currentPrice > ePWithOnePercentIncrease)
+                                {
 
-                                oneMinRepeat++;
-                                OneMinCloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
+                                    oneMinRepeat++;
+                                    await OneMinCloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
 
 
-                            }
-                            else
-                            {
-                                OneMInUpdatePrice(trade.Ticker, currentPrice, tradeOpportunityService);
+                                }
+                                else
+                                {
+                                    await OneMInUpdatePrice(trade.Ticker, currentPrice, tradeOpportunityService);
+                                }
                             }
 
                         }
@@ -573,24 +576,27 @@ namespace TVBot.Utility
                         foreach (var trade in openTradesBull)
                         {
                             var ticker = res.data.FirstOrDefault(t => t.s == trade.Ticker);
-                            var currentPrice = decimal.Parse(ticker.d[6]?.ToString());
-                            var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
-                            var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
-                            var executionPrice = trade.ExecutionPrice;
-                            var onePercentOfEP = executionPrice * 0.01m;
-                            var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
-                            if (currentPrice > ePWithOnePercentIncrease)
+                            if (ticker != null)
                             {
+                                var currentPrice = decimal.Parse(ticker.d[6]?.ToString());
+                                var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
+                                var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
+                                var executionPrice = trade.ExecutionPrice;
+                                var onePercentOfEP = executionPrice * 0.005m;
+                                var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
+                                if (currentPrice > ePWithOnePercentIncrease)
+                                {
 
-                                bullRepeat++;
-                                CloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
+                                    bullRepeat++;
+                                    await CloseTrade(trade.Ticker, "GetCurrentPriceAndCloseOpenTrades", currentPrice, tradeOpportunityService);
 
-                            }
-                            else
-                            {
+                                }
+                                else
+                                {
 
-                                UpdatePrice(trade.Ticker, currentPrice, tradeOpportunityService);
+                                    await UpdatePrice(trade.Ticker, currentPrice, tradeOpportunityService);
 
+                                }
                             }
                         }
                     }

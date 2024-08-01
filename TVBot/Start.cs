@@ -148,7 +148,7 @@ namespace TVBot
                         // DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
 
                         Thread.Sleep(10000);
-                        UtiityServices.GetCurrentPriceAllNSEStockAndCloseOpenTrades(tradeOpportunityService, allNSEStockPriceQuery);
+                       await UtiityServices.GetCurrentPriceAllNSEStockAndCloseOpenTrades(tradeOpportunityService, allNSEStockPriceQuery);
                         //  UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
 
 

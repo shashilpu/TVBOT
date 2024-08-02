@@ -16,7 +16,7 @@ namespace TVBot
     public class Program
     {
         static async Task Main(string[] args)
-        {          
+        {
 
             AppDomain.CurrentDomain.UnhandledException += GlobalExceptionHandler;
             try
@@ -40,7 +40,11 @@ namespace TVBot
                 .ConfigureServices(async (context, services) =>
                 {
                     services.AddDbContext<SqlServerDbContext>(options =>
-                        options.UseSqlServer(context.Configuration.GetConnectionString("DB_CONNECTION_STRING")), ServiceLifetime.Transient);
+                    {
+                        options.UseSqlServer(context.Configuration.GetConnectionString("DB_CONNECTION_STRING"));
+                        options.EnableRetryOnFailure();
+
+                    }, ServiceLifetime.Transient);
                     services.AddTransient(typeof(ISQLServer<>), typeof(SQLServer<>));
                     services.AddTransient(typeof(ISQLServerService<>), typeof(SQLServerService<>));
                     services.AddTransient<ISQLServerServiceFactory, SQLServerServiceFactory>();
@@ -56,14 +60,17 @@ namespace TVBot
                 });
         }
 
-        static  void GlobalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+        static void GlobalExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
             Log.Error($"Unhandled exception: {e.ExceptionObject}");
         }
     }
 
+    public static class DbContextOptionsBuilderExtensions
+    {
+        public static DbContextOptionsBuilder EnableRetryOnFailure(this DbContextOptionsBuilder optionsBuilder)
+        {
+            return optionsBuilder.EnableRetryOnFailure();
+        }
+    }
 }
-
-
-
-

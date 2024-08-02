@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -41,8 +42,8 @@ namespace TVBot
                 {
                     services.AddDbContext<SqlServerDbContext>(options =>
                     {
-                        options.UseSqlServer(context.Configuration.GetConnectionString("DB_CONNECTION_STRING"));
-                        options.EnableRetryOnFailure();
+                        options.UseSqlServer(context.Configuration.GetConnectionString("DB_CONNECTION_STRING"),config=>config.EnableRetryOnFailure(maxRetryCount:5, maxRetryDelay: TimeSpan.FromSeconds(30),null));
+                       
 
                     }, ServiceLifetime.Transient);
                     services.AddTransient(typeof(ISQLServer<>), typeof(SQLServer<>));
@@ -65,12 +66,5 @@ namespace TVBot
             Log.Error($"Unhandled exception: {e.ExceptionObject}");
         }
     }
-
-    public static class DbContextOptionsBuilderExtensions
-    {
-        public static DbContextOptionsBuilder EnableRetryOnFailure(this DbContextOptionsBuilder optionsBuilder)
-        {
-            return optionsBuilder.EnableRetryOnFailure();
-        }
-    }
+    
 }

@@ -26,6 +26,7 @@ namespace TVBot.Model.Entities
         /// Correlation identifier
         /// </summary>
         public decimal? Price { get; set; }
+        public string? AnalystRating { get; set; }
         public decimal? BetaOneYear { get; set; }
         public decimal? PercentVolalityOneWeek { get; set; }
         /// <summary>

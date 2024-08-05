@@ -6,7 +6,7 @@ namespace TVBot
 {
     internal static class Start
     {
-        public static async void Begin(ISQLServerServiceFactory tradeOpportunityService, ILogger logger)
+        public static async Task Begin(ISQLServerServiceFactory tradeOpportunityService, ILogger logger)
         {
 
             int count = 400;
@@ -38,18 +38,19 @@ namespace TVBot
 
             var allNSEStockQueryFilePath = Path.Combine(queryFolderPath, "AllNSEStock");
             var allNSEStockPriceQuery = Path.Combine(allNSEStockQueryFilePath, "allNSEStockPriceQuery.json");
-
-            // run the below code in a loop when time is between 9:15 to 15:30
-            while (true)
+            try
             {
-                var currentTime = DateTime.Now.TimeOfDay;
-                var startTime = new TimeSpan(9, 08, 0);
-                var endTime = new TimeSpan(15, 30, 0);
-                var tradeCurrentTime = DateTime.Now.TimeOfDay;
-                var tradeStartTime = new TimeSpan(9, 15, 10);
-                var tradeEndTime = new TimeSpan(14, 15, 0);
-                try
+                // run the below code in a loop when time is between 9:15 to 15:30
+                while (true)
                 {
+                    var currentTime = DateTime.Now.TimeOfDay;
+                    var startTime = new TimeSpan(9, 08, 0);
+                    var endTime = new TimeSpan(22, 30, 0);
+                    var tradeCurrentTime = DateTime.Now.TimeOfDay;
+                    var tradeStartTime = new TimeSpan(9, 15, 10);
+                    var tradeEndTime = new TimeSpan(22, 15, 0);
+
+
 
                     if (currentTime >= startTime && currentTime <= endTime && DateTime.Today.DayOfWeek != DayOfWeek.Saturday && DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
                     {
@@ -62,66 +63,66 @@ namespace TVBot
 
                         if (count % 3 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.EMA5MReversal(ema5MQueryFilePath, tradeOpportunityService);
                         }
                         if (count % 5 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
                         }
 
                         if (count % 8 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
                         }
                         if (count % 13 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.EMAOneHourReversal(ema1HQueryFilePath, tradeOpportunityService);
                         }
                         if (count % 17 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.MacdOneHourReversal(macd1HQueryFilePath, tradeOpportunityService);
                         }
                         if (count % 19 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.EMATwoHourReversal(ema2HQueryFilePath, tradeOpportunityService);
 
                         }
                         if (count % 23 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.EMAFourHourReversal(ema4HQueryFilePath, tradeOpportunityService);
 
                         }
                         if (count % 29 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.EMAOneDayReversal(emaDQueryFilePath, tradeOpportunityService);
 
                         }
                         if (count % 33 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.MacdOneDayReversal(macdDQueryFilePath, tradeOpportunityService);
                         }
                         if (count % 89 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.EMAOneWeekReversal(emaWQueryFilePath, tradeOpportunityService);
                         }
                         if (count % 144 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
                         }
                         if (count % 377 == 0)
                         {
-                            Thread.Sleep(10000);
+                            await Task.Delay(10000);
                             UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);
                         }
 
@@ -147,21 +148,26 @@ namespace TVBot
 
                         // DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
 
-                        Thread.Sleep(10000);
-                       await UtiityServices.GetCurrentPriceAllNSEStockAndCloseOpenTrades(tradeOpportunityService, allNSEStockPriceQuery);
+                        await Task.Delay(10000);
+                        await UtiityServices.GetCurrentPriceAllNSEStockAndCloseOpenTrades(tradeOpportunityService, allNSEStockPriceQuery);
                         //  UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
 
 
+
                     }
+                    await Task.Delay(10000);
+                    count++;
+                    Console.WriteLine("Count: " + count);
 
                 }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, ex.Message.ToString(), ex.InnerException);
-                }
-                count++;
-                Console.WriteLine("Count: " + count);
             }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message.ToString(), ex.InnerException);
+            }
+
+
         }
     }
 }
+

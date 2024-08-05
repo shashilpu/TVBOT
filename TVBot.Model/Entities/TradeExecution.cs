@@ -20,13 +20,15 @@ namespace TVBot.Model.Entities
         public decimal? TradeClosePrice { get; set; }
         public decimal? ProfitLoss { get; set; }
         public decimal? PercentProfitLoss { get; set; }
+        public string PastBullCrossInfo { get; set; } = string.Empty;
         public bool InTrade { get; set; }
+        public bool IsTradeFromPastBullCross { get; set; }=false;
         public string TradeType { get; set; }
         public string? Status { get; set; }
         public decimal TargetPercentGain { get; set; }
         public decimal? ExecutionFee { get; set; }
         public string? Notes { get; set; }
-        public bool? IsRepeatedTrade { get; set; }
+        public bool IsRepeatedTrade { get; set; }=false;
         [ForeignKey("TradeOpportunity")]
         public int TradeOpportunityId { get; set; }
         public TradeOpportunity TradeOpportunity { get; set; }

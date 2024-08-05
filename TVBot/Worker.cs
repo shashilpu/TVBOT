@@ -22,7 +22,7 @@ namespace TVBot
             {
                 try
                 {                 
-                    Start.Begin(_sqlserviceFactory,_logger);
+                  await  Start.Begin(_sqlserviceFactory,_logger);
                     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                     await Task.Delay(DelayInMilliseconds, stoppingToken);
                 }

@@ -42,8 +42,9 @@ namespace TVBot
                 {
                     services.AddDbContext<SqlServerDbContext>(options =>
                     {
-                        options.UseSqlServer(context.Configuration.GetConnectionString("LOCAL_DB_CONNECTION_STRING"),config=>config.EnableRetryOnFailure(maxRetryCount:9, maxRetryDelay: TimeSpan.FromSeconds(30),null));
-                       
+                       // options.UseSqlServer(context.Configuration.GetConnectionString("LOCAL_DB_CONNECTION_STRING"),config=>config.EnableRetryOnFailure(maxRetryCount:9, maxRetryDelay: TimeSpan.FromSeconds(30),null));
+                        options.UseSqlServer(context.Configuration.GetConnectionString("DB_CONNECTION_STRING"), config => config.EnableRetryOnFailure(maxRetryCount: 9, maxRetryDelay: TimeSpan.FromSeconds(30), null));
+
 
                     }, ServiceLifetime.Transient);
                     services.AddTransient(typeof(ISQLServer<>), typeof(SQLServer<>));

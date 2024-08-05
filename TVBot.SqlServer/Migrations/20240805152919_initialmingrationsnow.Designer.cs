@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVBot.SqlServer;
 
@@ -11,9 +12,11 @@ using TVBot.SqlServer;
 namespace TVBot.SqlServer.Migrations
 {
     [DbContext(typeof(SqlServerDbContext))]
-    partial class SqlServerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240805152919_initialmingrationsnow")]
+    partial class initialmingrationsnow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,8 +95,7 @@ namespace TVBot.SqlServer.Migrations
                         .HasColumnOrder(10);
 
                     b.Property<decimal>("Quantity")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(4);
 
                     b.Property<string>("Status")

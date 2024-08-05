@@ -8,7 +8,7 @@ namespace TVBot.Utility
 {
     public static class UtiityServices
     {
-       static int bullRepeat = 0;
+        static int bullRepeat = 0;
 
         public static async void EMA1MReversal(string ema1MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
@@ -81,7 +81,7 @@ namespace TVBot.Utility
                         var _message = "";
                         var isTradeFromPastBullCross = false;
                         var beta = 0.0m;
-                        var analystRatings = "";
+                        var analystRatings = "-";
                         var percentVolalityOneWeek = 0.0m;
                         var tickerName = ticker.s;
                         var price = decimal.Parse(ticker.d[6]?.ToString());
@@ -125,7 +125,7 @@ namespace TVBot.Utility
                             decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
                         var tickerLink = "https://in.tradingview.com/chart/?symbol=" + tickerName;
                         var Message = $"Bullish: {algoName} -- <a href=\"{tickerLink}\">{tickerName}</a> P.={price} C.={change}% V.={volume} Beta.={beta} Volality.={percentVolalityOneWeek} AR.={analystRatings}";
-                        if (change > 0)
+                        if (change > 0 && change < 4)
                         {
                             if (algoName == "1M_EMA")
                             {
@@ -194,6 +194,7 @@ namespace TVBot.Utility
                                     Volume = volume,
                                     CrossOverType = "Bullish",
                                     BetaOneYear = beta,
+                                    AnalystRating = analystRatings,
                                     PercentVolalityOneWeek = percentVolalityOneWeek
                                 };
 

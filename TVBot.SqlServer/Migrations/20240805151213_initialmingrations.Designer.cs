@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVBot.SqlServer;
 
@@ -11,9 +12,11 @@ using TVBot.SqlServer;
 namespace TVBot.SqlServer.Migrations
 {
     [DbContext(typeof(SqlServerDbContext))]
-    partial class SqlServerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240805151213_initialmingrations")]
+    partial class initialmingrations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,13 +35,11 @@ namespace TVBot.SqlServer.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TradeExecutionId"));
 
                     b.Property<decimal?>("CurrentPrice")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(6);
 
                     b.Property<decimal?>("CurrentProfitLossOnTrade")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(8);
 
                     b.Property<DateTime>("ExecutionDateTime")
@@ -46,13 +47,11 @@ namespace TVBot.SqlServer.Migrations
                         .HasColumnOrder(12);
 
                     b.Property<decimal?>("ExecutionFee")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(19);
 
                     b.Property<decimal>("ExecutionPrice")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(3);
 
                     b.Property<bool>("InTrade")
@@ -60,8 +59,7 @@ namespace TVBot.SqlServer.Migrations
                         .HasColumnOrder(14);
 
                     b.Property<decimal?>("InvestedAmount")
-                        .HasPrecision(15, 5)
-                        .HasColumnType("decimal(15,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(7);
 
                     b.Property<bool>("IsRepeatedTrade")
@@ -82,18 +80,15 @@ namespace TVBot.SqlServer.Migrations
                         .HasColumnOrder(22);
 
                     b.Property<decimal?>("PercentProfitLoss")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(11);
 
                     b.Property<decimal?>("ProfitLoss")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(10);
 
                     b.Property<decimal>("Quantity")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(4);
 
                     b.Property<string>("Status")
@@ -101,8 +96,7 @@ namespace TVBot.SqlServer.Migrations
                         .HasColumnOrder(23);
 
                     b.Property<decimal>("TargetPercentGain")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(16);
 
                     b.Property<string>("Ticker")
@@ -115,8 +109,7 @@ namespace TVBot.SqlServer.Migrations
                         .HasColumnOrder(13);
 
                     b.Property<decimal?>("TradeClosePrice")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(9);
 
                     b.Property<int>("TradeOpportunityId")
@@ -129,8 +122,7 @@ namespace TVBot.SqlServer.Migrations
                         .HasColumnOrder(15);
 
                     b.Property<decimal>("TrargetPrice")
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(5);
 
                     b.HasKey("TradeExecutionId");
@@ -161,8 +153,7 @@ namespace TVBot.SqlServer.Migrations
 
                     b.Property<decimal?>("BetaOneYear")
                         .IsRequired()
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(8);
 
                     b.Property<DateTime>("CrossOverDateTime")
@@ -182,8 +173,7 @@ namespace TVBot.SqlServer.Migrations
 
                     b.Property<decimal?>("PercentVolalityOneWeek")
                         .IsRequired()
-                        .HasPrecision(9, 5)
-                        .HasColumnType("decimal(9,5)")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnOrder(11);
 
                     b.Property<decimal?>("Price")

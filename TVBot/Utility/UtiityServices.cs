@@ -243,7 +243,7 @@ namespace TVBot.Utility
         {
             var tradeCurrentTime = DateTime.Now.TimeOfDay;
             var tradeStartTime = new TimeSpan(9, 15, 10);
-            var tradeEndTime = new TimeSpan(22, 15, 0);
+            var tradeEndTime = new TimeSpan(15, 15, 0);
             try
             {
 

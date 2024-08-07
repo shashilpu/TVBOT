@@ -171,7 +171,7 @@ namespace TVBot.Utility
                                 // check if crossover happen eariler also except today if so get the last crossover date, price and algoname and send to telegram
 
                                 var lastTradeOpportunityExceptToday = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(
-                                    x => x.Ticker == tickerName && !(algoName == "1M_EMA" || algoName == "5M_EMA" || algoName == "15M_EMA") && x.CrossOverDateTime < DateTime.Now.Date)
+                                    x => x.Ticker == tickerName && !(x.AlgoName == "1M_EMA" || x.AlgoName == "5M_EMA" || x.AlgoName == "15M_EMA") && x.CrossOverDateTime < DateTime.Now.Date)
                                     .OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
                                 if (lastTradeOpportunityExceptToday != null)
                                 {

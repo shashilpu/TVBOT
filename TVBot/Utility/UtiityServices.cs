@@ -130,35 +130,35 @@ namespace TVBot.Utility
                             if (algoName == "1M_EMA")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                              .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-10))
+                              .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-30))
                               .OrderByDescending(x => x.CrossOverDateTime)
                               .FirstOrDefault();
                             }
                             else if (algoName == "5M_EMA")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-30))
+                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-60))
                              .OrderByDescending(x => x.CrossOverDateTime)
                              .FirstOrDefault();
                             }
                             else if (algoName == "15M_EMA")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-60))
+                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-90))
                              .OrderByDescending(x => x.CrossOverDateTime)
                              .FirstOrDefault();
                             }
                             else if (algoName == "30M_EMA")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-90))
+                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-120))
                              .OrderByDescending(x => x.CrossOverDateTime)
                              .FirstOrDefault();
                             }
                             else if (algoName == "1H_EMA")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-120))
+                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-180))
                              .OrderByDescending(x => x.CrossOverDateTime)
                              .FirstOrDefault();
                             }
@@ -200,7 +200,7 @@ namespace TVBot.Utility
 
                                 await tradeOpportunityService.Create<TradeOpportunity>().Add(tradeOpportunityBull);
                                 var tradeOpportunityOneMinId = tradeOpportunityBull.Id;
-                                if (!await IsTradeOpenBull(tickerName, tradeOpportunityService))
+                                if (!await IsTradeOpen(tickerName, tradeOpportunityService))
                                 {
                                     await ExecuteTrade(tradeOpportunityOneMinId, tickerName, price, isTradeFromPastBullCross, _message, tradeOpportunityService);
                                 }
@@ -224,7 +224,7 @@ namespace TVBot.Utility
 
 
 
-        public static async Task<bool> IsTradeOpenBull(string tickerName, ISQLServerServiceFactory tradeOpportunityService)
+        public static async Task<bool> IsTradeOpen(string tickerName, ISQLServerServiceFactory tradeOpportunityService)
         {
             try
             {
@@ -243,7 +243,7 @@ namespace TVBot.Utility
         {
             var tradeCurrentTime = DateTime.Now.TimeOfDay;
             var tradeStartTime = new TimeSpan(9, 15, 10);
-            var tradeEndTime = new TimeSpan(15, 15, 0);
+            var tradeEndTime = new TimeSpan(14, 15, 0);
             try
             {
 

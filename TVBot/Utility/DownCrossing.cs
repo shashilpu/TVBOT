@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Eventing.Reader;
+using System.Diagnostics.Eventing.Reader;
 using TVBot.Model.Entities;
 using TVBot.Models;
 using TVBot.Services;

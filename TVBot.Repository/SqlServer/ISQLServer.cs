@@ -1,4 +1,4 @@
-﻿namespace TVBot.Repository.SqlServer
+namespace TVBot.Repository.SqlServer
 {
     public interface ISQLServer<T> where T : class
     {

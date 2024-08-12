@@ -1,4 +1,4 @@
-﻿using TVBot.Services.SqlServer;
+using TVBot.Services.SqlServer;
 
 namespace TVBot.Services.Factory
 {

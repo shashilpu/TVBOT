@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using TVBot.Services.Factory;
 using TVBot.Utility;
 
@@ -48,7 +48,7 @@ namespace TVBot
                     var endTime = new TimeSpan(15, 25, 0);
                     var tradeCurrentTime = DateTime.Now.TimeOfDay;
                     var tradeStartTime = new TimeSpan(9, 15, 10);
-                    var tradeEndTime = new TimeSpan(14, 15, 0);
+                    var tradeEndTime = new TimeSpan(15, 15, 0);
 
 
 

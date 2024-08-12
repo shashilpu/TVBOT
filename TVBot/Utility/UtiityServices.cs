@@ -72,12 +72,13 @@ namespace TVBot.Utility
         {
             try
             {
-                var lastTradeOpportunity = new TradeOpportunity();
                 SearchResponse res = APIServices.Screener(queryPath).Result;
                 if (res != null & res.totalCount > 0)
                 {
                     foreach (var ticker in res.data)
                     {
+                        var lastTradeOpportunity = new TradeOpportunity();
+                        bool negativeOneMinBullOpportunity = false;
                         var _message = "";
                         var isTradeFromPastBullCross = false;
                         var beta = 0.0m;
@@ -124,41 +125,50 @@ namespace TVBot.Utility
                         if (ticker.d[28] != null)
                             decimal.TryParse(ticker.d[28].ToString(), out percentVolalityOneWeek);
                         var tickerLink = "https://in.tradingview.com/chart/?symbol=" + tickerName;
-                        var Message = $"Bullish: {algoName} -- <a href=\"{tickerLink}\">{tickerName}</a> P.={price} C.={change}% V.={volume} Beta.={beta} Volality.={percentVolalityOneWeek} AR.={analystRatings}";
-                        if (change > 0 && change < 4)
+                        var Message = $" Bullish: {algoName} -- <a href=\"{tickerLink}\">{tickerName}</a> P.={price} C.={change}% V.={volume} Beta.={beta} Volality.={percentVolalityOneWeek} AR.={analystRatings}";
+                        //If change is between -2 and 3 %, no trade opportunity in last 60 minutes and it has past bullish cross record then create a trade opportunity
+
+                        var lastTradeOpportunityExceptTodays = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(
+                               x => x.Ticker == tickerName && !(x.AlgoName == "1M_EMA" || x.AlgoName == "5M_EMA" || x.AlgoName == "15M_EMA") && x.CrossOverDateTime < DateTime.Now.AddMinutes(-60))
+                               .OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
+                        if (lastTradeOpportunityExceptTodays != null & change > -2 & change < 0)
+                            negativeOneMinBullOpportunity = true;
+
+
+                        if ((change > 0 && change < 3) || negativeOneMinBullOpportunity)
                         {
                             if (algoName == "1M_EMA")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                              .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-30))
+                              .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-15))
                               .OrderByDescending(x => x.CrossOverDateTime)
                               .FirstOrDefault();
                             }
                             else if (algoName == "5M_EMA")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-60))
+                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-30))
                              .OrderByDescending(x => x.CrossOverDateTime)
                              .FirstOrDefault();
                             }
                             else if (algoName == "15M_EMA")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-90))
+                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-60))
                              .OrderByDescending(x => x.CrossOverDateTime)
                              .FirstOrDefault();
                             }
                             else if (algoName == "30M_EMA")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-120))
+                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-90))
                              .OrderByDescending(x => x.CrossOverDateTime)
                              .FirstOrDefault();
                             }
                             else if (algoName == "1H_EMA")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-180))
+                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-120))
                              .OrderByDescending(x => x.CrossOverDateTime)
                              .FirstOrDefault();
                             }
@@ -169,16 +179,24 @@ namespace TVBot.Utility
                             if (lastTradeOpportunity == null)
                             {
                                 // check if crossover happen eariler also except today if so get the last crossover date, price and algoname and send to telegram
-
+                                bool priceDownBwOneAndFourPercent = false;
                                 var lastTradeOpportunityExceptToday = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(
-                                    x => x.Ticker == tickerName && !(x.AlgoName == "1M_EMA" || x.AlgoName == "5M_EMA" || x.AlgoName == "15M_EMA") && x.CrossOverDateTime < DateTime.Now.Date)
+                                    x => x.Ticker == tickerName && !(x.AlgoName == "1M_EMA" || x.AlgoName == "5M_EMA" || x.AlgoName == "15M_EMA") && x.CrossOverDateTime < DateTime.Now.AddMinutes(-60))
                                     .OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
                                 if (lastTradeOpportunityExceptToday != null)
                                 {
-                                    _message = " Last CrossOver.= " + lastTradeOpportunityExceptToday.CrossOverDateTime + " Price.= " + lastTradeOpportunityExceptToday.Price + " AlgoN.= " + lastTradeOpportunityExceptToday.AlgoName + "TO.Id.= " + lastTradeOpportunityExceptToday.Id;
+                                    _message = " Last CrossOver.= " + lastTradeOpportunityExceptToday.CrossOverDateTime + " Price.= " + lastTradeOpportunityExceptToday.Price + " Vol.= " + lastTradeOpportunityExceptToday.Volume + " M AlgoN.= " + lastTradeOpportunityExceptToday.AlgoName + " TO.Id.= " + lastTradeOpportunityExceptToday.Id;
                                     Message += _message;
+                                    // check if price is bewtween 2 and 5 % down of lastTradeOpportunityExceptToday.Price(last crossover price).
+                                    if (price >= lastTradeOpportunityExceptToday.Price * 0.95m && price <= lastTradeOpportunityExceptToday.Price * 0.98m)
+                                    {
+                                        Message += " #<b>Probable Bottom Pattern</b>#" ;
+                                        Message = "💚" + Message;                                        
+                                        priceDownBwOneAndFourPercent = true;
+                                    }                                  
+                                       
                                     isTradeFromPastBullCross = true;
-                                    if (algoName != "1M_EMA")
+                                    if (algoName != "1M_EMA" || priceDownBwOneAndFourPercent)
                                     {
                                         APIServices.SendToTeligrams(Message);
                                     }
@@ -363,7 +381,7 @@ namespace TVBot.Utility
                                 var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                                 var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
                                 var executionPrice = trade.ExecutionPrice;
-                                var onePercentOfEP = executionPrice * 0.005m;
+                                var onePercentOfEP = executionPrice * 0.01m;
                                 var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
                                 if (currentPrice > ePWithOnePercentIncrease)
                                 {

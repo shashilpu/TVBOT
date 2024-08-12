@@ -1,4 +1,4 @@
-﻿using TVBot.Repository.SqlServer;
+using TVBot.Repository.SqlServer;
 
 namespace TVBot.Services.SqlServer
 {

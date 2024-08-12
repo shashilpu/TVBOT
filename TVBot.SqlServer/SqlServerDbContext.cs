@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Xml;
 using TVBot.Model.Entities;
 using TVBot.SqlServer.Entities;

@@ -72,6 +72,7 @@ namespace TVBot.Utility
         {
             try
             {
+                var minBeta = 0.5m;
                 SearchResponse res = APIServices.Screener(queryPath).Result;
                 if (res != null & res.totalCount > 0)
                 {
@@ -135,7 +136,7 @@ namespace TVBot.Utility
                             negativeOneMinBullOpportunity = true;
 
 
-                        if ((change > 0 && change < 3) || negativeOneMinBullOpportunity)
+                        if ((change > 0 && change < 5) && (beta > minBeta || percentVolalityOneWeek > 3))
                         {
                             if (algoName == "1M_EMA")
                             {
@@ -188,18 +189,19 @@ namespace TVBot.Utility
                                     _message = " Last CrossOver.= " + lastTradeOpportunityExceptToday.CrossOverDateTime + " Price.= " + lastTradeOpportunityExceptToday.Price + " Vol.= " + lastTradeOpportunityExceptToday.Volume + " M AlgoN.= " + lastTradeOpportunityExceptToday.AlgoName + " TO.Id.= " + lastTradeOpportunityExceptToday.Id;
                                     Message += _message;
                                     // check if price is bewtween 2 and 5 % down of lastTradeOpportunityExceptToday.Price(last crossover price).
-                                    if (price >= lastTradeOpportunityExceptToday.Price * 0.95m && price <= lastTradeOpportunityExceptToday.Price * 0.98m)
+                                    if (price >= lastTradeOpportunityExceptToday.Price * 0.90m && price <= lastTradeOpportunityExceptToday.Price * 0.95m)
                                     {
-                                        Message += " #<b>Probable Bottom Pattern</b>#" ;
-                                        Message = "💚" + Message;                                        
+                                        Message += " #<b>Probable Bottom Pattern</b>#";
+                                        Message = "💚" + Message;
                                         priceDownBwOneAndFourPercent = true;
-                                    }                                  
-                                       
-                                    isTradeFromPastBullCross = true;
-                                    if (algoName != "1M_EMA" || priceDownBwOneAndFourPercent)
-                                    {
                                         APIServices.SendToTeligrams(Message);
                                     }
+
+                                    isTradeFromPastBullCross = true;
+                                    //if (algoName != "1M_EMA" || priceDownBwOneAndFourPercent)
+                                    //{
+                                    //    APIServices.SendToTeligrams(Message);
+                                    //}
 
                                 }
                                 var tradeOpportunityBull = new TradeOpportunity
@@ -295,7 +297,7 @@ namespace TVBot.Utility
                         ExecutionFee = 0,
                         Notes = "Initial Buy",
                         Ticker = tickerName,
-                        TrargetPrice = price + (price * 0.01m),
+                        TrargetPrice = price + (price * 0.005m),
                         InvestedAmount = totalInvestment,
                         IsRepeatedTrade = isRepeatedTrade,
                         CurrentProfitLossOnTrade = currentVale - totalInvestment
@@ -381,7 +383,7 @@ namespace TVBot.Utility
                                 var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                                 var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
                                 var executionPrice = trade.ExecutionPrice;
-                                var onePercentOfEP = executionPrice * 0.01m;
+                                var onePercentOfEP = executionPrice * 0.005m;
                                 var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
                                 if (currentPrice > ePWithOnePercentIncrease)
                                 {
@@ -404,6 +406,24 @@ namespace TVBot.Utility
             {
                 Log.Logger.Error(ex, ex.Message, ex.InnerException);
             }
+        }
+        public async static Task SendReport(ISQLServerServiceFactory tradeOpportunityService)
+        {
+            var tradeExecution = (await tradeOpportunityService.Create<TradeExecution>().GetAll()).ToList();
+            var result = new
+            {
+                TotalTrades = tradeExecution.Count(),
+                RepeatedTrades = tradeExecution.Count(t => t.IsRepeatedTrade == true),
+                NonRepeatedTrades = tradeExecution.Count(t => t.IsRepeatedTrade == false),
+                TotalInvestAmount = (tradeExecution.Count(t => t.IsRepeatedTrade == false)) * 10000,
+                PercentRepeatedTrades = (tradeExecution.Count(t => t.IsRepeatedTrade == true) * 100.0 / tradeExecution.Count()),
+                RunningProfitLoss = tradeExecution.Where(t => t.InTrade == true).Sum(t => t.CurrentProfitLossOnTrade),
+                BookedProfit = tradeExecution.Where(t => t.InTrade == false).Sum(t => t.ProfitLoss),
+                RunningTrade = tradeExecution.Count(t => t.InTrade == true),
+                ClosedTrade = tradeExecution.Count(t => t.InTrade == false)
+            };
+            APIServices.SendToTeligrams("Total Trades: " + result.TotalTrades + " Repeated Trades: " + result.RepeatedTrades + " Non Repeated Trades: " + result.NonRepeatedTrades + " Total Invested Amount: " + result.TotalInvestAmount + " Running Profit Loss: " + result.RunningProfitLoss + " Booked Profit: " + result.BookedProfit + " Running Trades: " + result.RunningTrade + " Closed Trades: " + result.ClosedTrade);
+
         }
     }
 }

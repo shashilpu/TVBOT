@@ -51,7 +51,6 @@ namespace TVBot
                     var tradeEndTime = new TimeSpan(15, 15, 0);
 
 
-
                     if (currentTime >= startTime && currentTime <= endTime && DateTime.Today.DayOfWeek != DayOfWeek.Saturday && DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
                     {
                         if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
@@ -124,6 +123,7 @@ namespace TVBot
                         {
                             await Task.Delay(10000);
                             UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);
+                            await UtiityServices.SendReport(tradeOpportunityService);
                         }
 
 

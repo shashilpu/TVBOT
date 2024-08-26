@@ -118,13 +118,13 @@ namespace TVBot
                         if (count % 93 == 0)
                         {
                             await Task.Delay(10000);
-                          //  UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
+                            UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
                         }
                         if (count % 117 == 0)
                         {
                             await Task.Delay(10000);
                             UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);
-                            await UtiityServices.SendReport(tradeOpportunityService);
+                            await UtiityServices.SendReport(tradeOpportunityService);                           
                         }
 
 
@@ -158,7 +158,7 @@ namespace TVBot
                     }
                     await Task.Delay(10000);
                     count++;
-                    Console.WriteLine("Count: " + count);
+                  //  Console.WriteLine("Count: " + count);
 
                 }
             }

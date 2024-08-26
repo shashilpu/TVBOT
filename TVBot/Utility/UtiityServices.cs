@@ -189,7 +189,7 @@ namespace TVBot.Utility
                                     _message = " Last CrossOver.= " + lastTradeOpportunityExceptToday.CrossOverDateTime + " Price.= " + lastTradeOpportunityExceptToday.Price + " Vol.= " + lastTradeOpportunityExceptToday.Volume + " M AlgoN.= " + lastTradeOpportunityExceptToday.AlgoName + " TO.Id.= " + lastTradeOpportunityExceptToday.Id;
                                     Message += _message;
                                     // check if price is bewtween 2 and 5 % down of lastTradeOpportunityExceptToday.Price(last crossover price).
-                                    if (price >= lastTradeOpportunityExceptToday.Price * 0.90m && price <= lastTradeOpportunityExceptToday.Price * 0.95m)
+                                    if (price >= lastTradeOpportunityExceptToday.Price * 0.90m && price <= lastTradeOpportunityExceptToday.Price * 0.93m)
                                     {
                                         Message += " #<b>Probable Bottom Pattern</b>#";
                                         Message = "💚" + Message;
@@ -297,7 +297,8 @@ namespace TVBot.Utility
                         ExecutionFee = 0,
                         Notes = "Initial Buy",
                         Ticker = tickerName,
-                        TrargetPrice = price + (price * 0.005m),
+                        TrargetPrice = price * 1.004m,
+                        StopLossPrice = price * 1.002m,
                         InvestedAmount = totalInvestment,
                         IsRepeatedTrade = isRepeatedTrade,
                         CurrentProfitLossOnTrade = currentVale - totalInvestment
@@ -383,13 +384,13 @@ namespace TVBot.Utility
                                 var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                                 var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
                                 var executionPrice = trade.ExecutionPrice;
-                                var onePercentOfEP = executionPrice * 0.005m;
-                                var ePWithOnePercentIncrease = trade.ExecutionPrice + onePercentOfEP;
-                                if (currentPrice > ePWithOnePercentIncrease)
+                                var pointTwoPercentPrice = executionPrice * 1.002m;
+                                if (currentPrice > pointTwoPercentPrice)
                                 {
 
                                     bullRepeat++;
-                                    await CloseTrade(trade.Ticker, "Price All NSE Stock And Close", currentPrice, tradeOpportunityService);
+                                    // await CloseTrade(trade.Ticker, "Price All NSE Stock And Close", currentPrice, tradeOpportunityService);
+                                    await UpdatePriceAndCheckStopLoss(trade.Ticker, currentPrice, tradeOpportunityService);
 
                                 }
                                 else
@@ -400,6 +401,46 @@ namespace TVBot.Utility
                             }
                         }
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, ex.Message, ex.InnerException);
+            }
+        }
+        public static async Task UpdatePriceAndCheckStopLoss(string ticker, decimal price, ISQLServerServiceFactory tradeOpportunityService)
+        {
+            try
+            {
+                var trade = (await tradeOpportunityService.Create<TradeExecution>().GetAll()).FirstOrDefault(x => x.Ticker == ticker && x.Status == "Open");
+                if (trade != null)
+                {
+                    var executionPrice = trade.ExecutionPrice;
+                    var lastStopLossPrice = trade.StopLossPrice;
+                    var initialStopLossPrice = 0.0m;
+                    var lastTargetPrice = trade.TrargetPrice;
+                    var currentPrice = price;
+                    var trailingStep = 0.001m;
+                    
+                    if (trade.ExecutionDateTime < DateTime.Today)
+                        initialStopLossPrice = executionPrice * 1.01m;
+                    else
+                        initialStopLossPrice = executionPrice * 1.0025m;
+
+
+                    if (currentPrice > lastTargetPrice)
+                    {
+                        trade.TrargetPrice = lastTargetPrice * (1 + trailingStep);
+                        trade.StopLossPrice = lastStopLossPrice * (1 + trailingStep);
+                    }
+                    else if (currentPrice < lastStopLossPrice && lastStopLossPrice > initialStopLossPrice)
+                    {
+                        await CloseTrade(trade.Ticker, "Stop Loss Exit", currentPrice, tradeOpportunityService);
+                        return;
+                    }
+
+                    tradeOpportunityService.Create<TradeExecution>().Update(trade);
+                    await UpdatePrice(ticker, currentPrice, tradeOpportunityService);
                 }
             }
             catch (Exception ex)

@@ -119,7 +119,7 @@ namespace TVBot
                             await Task.Delay(10000);
                             UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 377 == 0)
+                        if (count % 177 == 0)
                         {
                             await Task.Delay(10000);
                             UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);

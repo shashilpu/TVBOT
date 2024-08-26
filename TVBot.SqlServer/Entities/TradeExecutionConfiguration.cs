@@ -22,6 +22,7 @@ namespace TVBot.SqlServer.Entities
             builder.Property(x => x.TradeOpportunityId).IsRequired().HasColumnOrder(18);
             builder.HasOne(x => x.TradeOpportunity).WithMany().HasForeignKey(x => x.TradeOpportunityId);
             builder.Property(x => x.ExecutionFee).HasPrecision(15, 4).HasColumnOrder(19);
+            builder.Property(x => x.StopLossPrice).HasPrecision(15, 4).HasColumnOrder(24);
             builder.Property(x => x.Notes).HasColumnOrder(20);
             builder.Property(x => x.IsTradeFromPastBullCross).HasColumnOrder(21);
             builder.Property(x => x.PastBullCrossInfo).HasColumnOrder(22);

@@ -14,6 +14,7 @@ namespace TVBot.Model.Entities
         public decimal ExecutionPrice { get; set; }
         public decimal? CurrentPrice { get; set; }
         public decimal? InvestedAmount { get; set; }
+        public decimal? StopLossPrice { get; set; }
         public decimal? CurrentProfitLossOnTrade { get; set; }
         public decimal Quantity { get; set; }
         public decimal TrargetPrice { get; set; }

@@ -1,3 +1,4 @@
+using Azure.Core;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TVBot.Model.Entities;
@@ -33,6 +34,11 @@ namespace TVBot
 
 
             }
+        }
+        public override Task StopAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogError("Worker stopped at: {time}", DateTimeOffset.Now);
+            return base.StopAsync(stoppingToken);
         }
     }
 }

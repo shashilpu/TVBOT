@@ -423,7 +423,7 @@ namespace TVBot.Utility
                     var trailingStep = 0.001m;
                     
                     if (trade.ExecutionDateTime < DateTime.Today)
-                        initialStopLossPrice = executionPrice * 1.01m;
+                        initialStopLossPrice = executionPrice * 1.0085m;
                     else
                         initialStopLossPrice = executionPrice * 1.0025m;
 

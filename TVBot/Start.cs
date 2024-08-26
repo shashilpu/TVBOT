@@ -9,7 +9,7 @@ namespace TVBot
         public static async Task Begin(ISQLServerServiceFactory tradeOpportunityService, ILogger logger)
         {
 
-            int count = 400;
+            int count = 200;
             var appPath = AppDomain.CurrentDomain.BaseDirectory;
             var queryFolderPath = Path.Combine(appPath, "JsonQuery");
             var macdDQueryFilePath = Path.Combine(queryFolderPath, "macdDQuery.json");
@@ -40,15 +40,16 @@ namespace TVBot
             var allNSEStockPriceQuery = Path.Combine(allNSEStockQueryFilePath, "allNSEStockPriceQuery.json");
             try
             {
+                await UtiityServices.SendReport(tradeOpportunityService);
                 // run the below code in a loop when time is between 9:15 to 15:30
                 while (true)
                 {
                     var currentTime = DateTime.Now.TimeOfDay;
                     var startTime = new TimeSpan(9, 08, 0);
-                    var endTime = new TimeSpan(15, 25, 0);
+                    var endTime = new TimeSpan(15, 29, 0);
                     var tradeCurrentTime = DateTime.Now.TimeOfDay;
                     var tradeStartTime = new TimeSpan(9, 15, 10);
-                    var tradeEndTime = new TimeSpan(15, 15, 0);
+                    var tradeEndTime = new TimeSpan(15, 29, 0);
 
 
                     if (currentTime >= startTime && currentTime <= endTime && DateTime.Today.DayOfWeek != DayOfWeek.Saturday && DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
@@ -109,17 +110,17 @@ namespace TVBot
                             await Task.Delay(10000);
                             UtiityServices.MacdOneDayReversal(macdDQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 89 == 0)
+                        if (count % 57 == 0)
                         {
                             await Task.Delay(10000);
                             UtiityServices.EMAOneWeekReversal(emaWQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 144 == 0)
+                        if (count % 93 == 0)
                         {
                             await Task.Delay(10000);
-                            UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
+                          //  UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
                         }
-                        if (count % 177 == 0)
+                        if (count % 117 == 0)
                         {
                             await Task.Delay(10000);
                             UtiityServices.AllTimeDarvasBoxBullish(AllTimeDarvasBoxBullishQueryFilePath, tradeOpportunityService);

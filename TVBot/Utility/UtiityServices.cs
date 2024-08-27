@@ -384,14 +384,17 @@ namespace TVBot.Utility
                                 var change = Math.Round(decimal.Parse(ticker.d[12]?.ToString()), 3);
                                 var volume = Math.Round(decimal.Parse(ticker.d[13].ToString()) / 1000000, 3);
                                 var executionPrice = trade.ExecutionPrice;
-                                var pointTwoPercentPrice = executionPrice * 1.002m;
-                                if (currentPrice > pointTwoPercentPrice)
+                                var exitPrice = 0.0m;
+                                if (trade.ExecutionDateTime.Date < DateTime.Today)
+                                    exitPrice = executionPrice * 1.0095m;
+                                else
+                                    exitPrice = executionPrice * 1.005m;
+                                if (currentPrice > exitPrice)
                                 {
 
                                     bullRepeat++;
-                                    // await CloseTrade(trade.Ticker, "Price All NSE Stock And Close", currentPrice, tradeOpportunityService);
-                                    await UpdatePriceAndCheckStopLoss(trade.Ticker, currentPrice, tradeOpportunityService);
-
+                                    await CloseTrade(trade.Ticker, "Price All NSE Stock And Close", currentPrice, tradeOpportunityService);
+                                    //await UpdatePriceAndCheckStopLoss(trade.Ticker, currentPrice, tradeOpportunityService);
                                 }
                                 else
                                 {

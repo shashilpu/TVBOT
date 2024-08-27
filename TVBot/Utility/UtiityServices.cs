@@ -429,10 +429,9 @@ namespace TVBot.Utility
 
                     if (currentPrice > lastTargetPrice)
                     {
-                        trade.TrargetPrice = price * 1.002m; 
-                        trade.StopLossPrice = price * 0.998m;
-                        tradeOpportunityService.Create<TradeExecution>().Update(trade);
-                        await UpdatePrice(ticker, currentPrice, tradeOpportunityService);
+                        trade.TrargetPrice = price * 1.005m; 
+                        trade.StopLossPrice = price * 0.997m;
+                        tradeOpportunityService.Create<TradeExecution>().Update(trade);                       
                     }
                     else if (lastStopLossPrice != firstStopLossPrice && currentPrice < lastStopLossPrice && lastStopLossPrice > initialStopLossPrice)
                     {

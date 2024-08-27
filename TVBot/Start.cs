@@ -51,16 +51,13 @@ namespace TVBot
                     var tradeStartTime = new TimeSpan(9, 15, 01);
                     var tradeEndTime = new TimeSpan(15, 29, 30);
 
-
                     if (currentTime >= startTime && currentTime <= endTime && DateTime.Today.DayOfWeek != DayOfWeek.Saturday && DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
                     {
                         if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
                         {
                             // Thread.Sleep(10000);
                             UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
-
                         }
-
                         if (count % 3 == 0)
                         {
                             await Task.Delay(10000);

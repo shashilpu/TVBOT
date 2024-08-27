@@ -297,8 +297,8 @@ namespace TVBot.Utility
                         ExecutionFee = 0,
                         Notes = "Initial Buy",
                         Ticker = tickerName,
-                        TrargetPrice = price * 1.004m,
-                        StopLossPrice = price * 1.002m,
+                        TrargetPrice = price * 1.005m,
+                        StopLossPrice = price * 1.003m,
                         InvestedAmount = totalInvestment,
                         IsRepeatedTrade = isRepeatedTrade,
                         CurrentProfitLossOnTrade = currentVale - totalInvestment
@@ -417,6 +417,7 @@ namespace TVBot.Utility
                 {
                     var executionPrice = trade.ExecutionPrice;
                     var lastStopLossPrice = trade.StopLossPrice;
+                    var firstStopLossPrice = executionPrice * 1.003m;
                     var initialStopLossPrice = 0.0m;
                     var lastTargetPrice = trade.TrargetPrice;
                     var currentPrice = price;                  
@@ -424,19 +425,24 @@ namespace TVBot.Utility
                     if (trade.ExecutionDateTime.Date < DateTime.Today)
                         initialStopLossPrice = executionPrice * 1.0085m;
                     else
-                        initialStopLossPrice = executionPrice * 1.0025m;
+                        initialStopLossPrice = executionPrice * 1.003m;
 
                     if (currentPrice > lastTargetPrice)
                     {
                         trade.TrargetPrice = price * 1.002m; 
                         trade.StopLossPrice = price * 0.998m;
                         tradeOpportunityService.Create<TradeExecution>().Update(trade);
+                        await UpdatePrice(ticker, currentPrice, tradeOpportunityService);
                     }
-                    else if (currentPrice < lastStopLossPrice && lastStopLossPrice > initialStopLossPrice)
+                    else if (lastStopLossPrice != firstStopLossPrice && currentPrice < lastStopLossPrice && lastStopLossPrice > initialStopLossPrice)
                     {
                         await CloseTrade(trade.Ticker, "Stop Loss Exit", currentPrice, tradeOpportunityService);                       
-                    }                    
-                    await UpdatePrice(ticker, currentPrice, tradeOpportunityService);
+                    }
+                    else
+                    {
+                        await UpdatePrice(ticker, currentPrice, tradeOpportunityService);
+                    }
+                   
                 }
             }
             catch (Exception ex)

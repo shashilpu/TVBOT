@@ -14,12 +14,12 @@
     {
       "left": "volume",
       "operation": "greater",
-      "right": 1000000
+      "right": 500000
     },
     {
-      "left": "EMA5|1",
+      "left": "EMA3|1",
       "operation": "crosses_above",
-      "right": "EMA9|1"
+      "right": "EMA7|1"
     }
   ],
   "ignore_unknown_fields": false,

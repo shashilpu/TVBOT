@@ -262,8 +262,8 @@ namespace TVBot.Utility
         public static async Task ExecuteTrade(int tradeOpportunityId, string tickerName, decimal price, bool isTradeFromPastBull, string pastBullCrossInfo, ISQLServerServiceFactory tradeOpportunityService)
         {
             var tradeCurrentTime = DateTime.Now.TimeOfDay;
-            var tradeStartTime = new TimeSpan(9, 15, 10);
-            var tradeEndTime = new TimeSpan(14, 15, 0);
+            var tradeStartTime = new TimeSpan(9, 15, 01);
+            var tradeEndTime = new TimeSpan(15, 29, 30);
             try
             {
 
@@ -419,27 +419,23 @@ namespace TVBot.Utility
                     var lastStopLossPrice = trade.StopLossPrice;
                     var initialStopLossPrice = 0.0m;
                     var lastTargetPrice = trade.TrargetPrice;
-                    var currentPrice = price;
-                    var trailingStep = 0.001m;
+                    var currentPrice = price;                  
                     
-                    if (trade.ExecutionDateTime < DateTime.Today)
+                    if (trade.ExecutionDateTime.Date < DateTime.Today)
                         initialStopLossPrice = executionPrice * 1.0085m;
                     else
                         initialStopLossPrice = executionPrice * 1.0025m;
 
-
                     if (currentPrice > lastTargetPrice)
                     {
-                        trade.TrargetPrice = lastTargetPrice * (1 + trailingStep);
-                        trade.StopLossPrice = lastStopLossPrice * (1 + trailingStep);
+                        trade.TrargetPrice = price * 1.002m; 
+                        trade.StopLossPrice = price * 0.998m;
+                        tradeOpportunityService.Create<TradeExecution>().Update(trade);
                     }
                     else if (currentPrice < lastStopLossPrice && lastStopLossPrice > initialStopLossPrice)
                     {
-                        await CloseTrade(trade.Ticker, "Stop Loss Exit", currentPrice, tradeOpportunityService);
-                        return;
-                    }
-
-                    tradeOpportunityService.Create<TradeExecution>().Update(trade);
+                        await CloseTrade(trade.Ticker, "Stop Loss Exit", currentPrice, tradeOpportunityService);                       
+                    }                    
                     await UpdatePrice(ticker, currentPrice, tradeOpportunityService);
                 }
             }

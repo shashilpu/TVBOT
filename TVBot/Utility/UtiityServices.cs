@@ -26,9 +26,9 @@ namespace TVBot.Utility
         {
             SearchAndSend(ema15MQueryFilePath, "15M_EMA", tradeOpportunityService);
         }
-        public static void EMA30MReversal(string ema30MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
+        public static void MACD_3MReversal(string macd3MQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
-            SearchAndSend(ema30MQueryFilePath, "30M_EMA", tradeOpportunityService);
+            SearchAndSend(macd3MQueryFilePath, "3M_MACD", tradeOpportunityService);
         }
         public static void EMAOneHourReversal(string ema1HQueryFilePath, ISQLServerServiceFactory tradeOpportunityService)
         {
@@ -79,7 +79,7 @@ namespace TVBot.Utility
                     foreach (var ticker in res.data)
                     {
                         var lastTradeOpportunity = new TradeOpportunity();
-                        bool negativeOneMinBullOpportunity = false;
+
                         var _message = "";
                         var isTradeFromPastBullCross = false;
                         var beta = 0.0m;
@@ -132,11 +132,10 @@ namespace TVBot.Utility
                         var lastTradeOpportunityExceptTodays = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(
                                x => x.Ticker == tickerName && !(x.AlgoName == "1M_EMA" || x.AlgoName == "5M_EMA" || x.AlgoName == "15M_EMA") && x.CrossOverDateTime < DateTime.Now.AddMinutes(-60))
                                .OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
-                        if (lastTradeOpportunityExceptTodays != null & change > -2 & change < 0)
-                            negativeOneMinBullOpportunity = true;
 
 
-                        if ((change > 0 && change < 5) && (beta > minBeta && percentVolalityOneWeek > 5))
+
+                        if ((change > 0 && change < 5) && (beta > minBeta || percentVolalityOneWeek > 3))
                         {
                             if (algoName == "1M_EMA")
                             {
@@ -159,10 +158,10 @@ namespace TVBot.Utility
                              .OrderByDescending(x => x.CrossOverDateTime)
                              .FirstOrDefault();
                             }
-                            else if (algoName == "30M_EMA")
+                            else if (algoName == "3M_MACD")
                             {
                                 lastTradeOpportunity = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll())
-                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-60))
+                             .Where(x => x.Ticker == tickerName && x.CrossOverDateTime > DateTime.Now.AddMinutes(-15))
                              .OrderByDescending(x => x.CrossOverDateTime)
                              .FirstOrDefault();
                             }
@@ -180,25 +179,25 @@ namespace TVBot.Utility
                             if (lastTradeOpportunity == null)
                             {
                                 // check if crossover happen eariler also except today if so get the last crossover date, price and algoname and send to telegram
-                                bool priceDownBwOneAndFourPercent = false;
+
                                 var lastTradeOpportunityExceptToday = (await tradeOpportunityService.Create<TradeOpportunity>().GetAll()).Where(
-                                    x => x.Ticker == tickerName && !(x.AlgoName == "1M_EMA" || x.AlgoName == "5M_EMA" || x.AlgoName == "15M_EMA") && x.CrossOverDateTime < DateTime.Now.AddMinutes(-60))
+                                    x => x.Ticker == tickerName && !(x.AlgoName == "1M_EMA" || x.AlgoName == "3M_MACD" || x.AlgoName == "5M_EMA" || x.AlgoName == "15M_EMA") && x.CrossOverDateTime < DateTime.Now.AddMinutes(-60))
                                     .OrderByDescending(x => x.CrossOverDateTime).FirstOrDefault();
                                 if (lastTradeOpportunityExceptToday != null)
                                 {
                                     _message = " Last CrossOver.= " + lastTradeOpportunityExceptToday.CrossOverDateTime + " Price.= " + lastTradeOpportunityExceptToday.Price + " Vol.= " + lastTradeOpportunityExceptToday.Volume + " M AlgoN.= " + lastTradeOpportunityExceptToday.AlgoName + " TO.Id.= " + lastTradeOpportunityExceptToday.Id;
                                     Message += _message;
                                     // check if price is bewtween 3 and 30 % down of lastTradeOpportunityExceptToday.Price(last crossover price).
-                                    if (price >= lastTradeOpportunityExceptToday.Price * 0.70m && price <= lastTradeOpportunityExceptToday.Price * 0.97m)
+                                    if (price < lastTradeOpportunityExceptToday.Price * 0.97m)
                                     {
                                         Message += " #<b>Probable Bottom Pattern</b>#";
                                         Message = "💚" + Message;
-                                        priceDownBwOneAndFourPercent = true;
+
                                         APIServices.SendToTeligrams(Message);
                                     }
 
                                     isTradeFromPastBullCross = true;
-                                    
+
 
                                 }
                                 var tradeOpportunityBull = new TradeOpportunity
@@ -217,7 +216,7 @@ namespace TVBot.Utility
 
                                 await tradeOpportunityService.Create<TradeOpportunity>().Add(tradeOpportunityBull);
                                 var tradeOpportunityOneMinId = tradeOpportunityBull.Id;
-                                if (!await IsTradeOpen(tickerName, tradeOpportunityService) && algoName == "1M_EMA")
+                                if (!await IsTradeOpen(tickerName, tradeOpportunityService) && (algoName == "1M_EMA" || algoName == "3M_MACD"))
                                 {
                                     await ExecuteTrade(tradeOpportunityOneMinId, tickerName, price, isTradeFromPastBullCross, _message, tradeOpportunityService);
                                 }
@@ -294,8 +293,8 @@ namespace TVBot.Utility
                         ExecutionFee = 0,
                         Notes = "Initial Buy",
                         Ticker = tickerName,
-                        TrargetPrice = price * 1.005m,
-                        StopLossPrice = price * 1.003m,
+                        TrargetPrice = price * 1.006m,
+                        StopLossPrice = price * 1.006m,
                         InvestedAmount = totalInvestment,
                         IsRepeatedTrade = isRepeatedTrade,
                         CurrentProfitLossOnTrade = currentVale - totalInvestment
@@ -383,15 +382,23 @@ namespace TVBot.Utility
                                 var executionPrice = trade.ExecutionPrice;
                                 var exitPrice = 0.0m;
                                 if (trade.ExecutionDateTime.Date < DateTime.Today)
-                                    exitPrice = executionPrice * 1.0095m;
+                                    exitPrice = executionPrice * 1.01m;
                                 else
                                     exitPrice = executionPrice * 1.005m;
                                 if (currentPrice > exitPrice)
                                 {
 
                                     bullRepeat++;
-                                    await CloseTrade(trade.Ticker, "Price All NSE Stock And Close", currentPrice, tradeOpportunityService);
-                                    //await UpdatePriceAndCheckStopLoss(trade.Ticker, currentPrice, tradeOpportunityService);
+                                    var currentTime = DateTime.Now.TimeOfDay;
+                                    var startTime = new TimeSpan(15, 18, 01);
+                                    if (currentTime > startTime)
+                                    {
+                                        await CloseTrade(trade.Ticker, "Day End Trade CLose", currentPrice, tradeOpportunityService);
+                                    }
+                                    else
+                                    {
+                                        await UpdatePriceAndCheckStopLoss(trade.Ticker, currentPrice, tradeOpportunityService);
+                                    }
                                 }
                                 else
                                 {
@@ -415,33 +422,24 @@ namespace TVBot.Utility
                 var trade = (await tradeOpportunityService.Create<TradeExecution>().GetAll()).FirstOrDefault(x => x.Ticker == ticker && x.Status == "Open");
                 if (trade != null)
                 {
-                    var executionPrice = trade.ExecutionPrice;
                     var lastStopLossPrice = trade.StopLossPrice;
-                    var firstStopLossPrice = executionPrice * 1.003m;
-                    var initialStopLossPrice = 0.0m;
                     var lastTargetPrice = trade.TrargetPrice;
-                    var currentPrice = price;                  
-                    
-                    if (trade.ExecutionDateTime.Date < DateTime.Today)
-                        initialStopLossPrice = executionPrice * 1.0085m;
-                    else
-                        initialStopLossPrice = executionPrice * 1.003m;
-
+                    var currentPrice = price;
                     if (currentPrice > lastTargetPrice)
                     {
-                        trade.TrargetPrice = price * 1.005m; 
-                        trade.StopLossPrice = price * 0.997m;
-                        tradeOpportunityService.Create<TradeExecution>().Update(trade);                       
+                        trade.TrargetPrice = Math.Max(price * 1.005m, lastTargetPrice);
+                        trade.StopLossPrice = Math.Max(price * 0.997m, (decimal)lastStopLossPrice); //price * 0.997m > lastStopLossPrice ? price * 0.997m : lastStopLossPrice;
+                        tradeOpportunityService.Create<TradeExecution>().Update(trade);
                     }
-                    else if (lastStopLossPrice != firstStopLossPrice && currentPrice < lastStopLossPrice && lastStopLossPrice > initialStopLossPrice)
+                    else if (currentPrice < lastStopLossPrice)
                     {
-                        await CloseTrade(trade.Ticker, "Stop Loss Exit", currentPrice, tradeOpportunityService);                       
+                        await CloseTrade(trade.Ticker, "Stop Loss Exit", currentPrice, tradeOpportunityService);
                     }
                     else
                     {
                         await UpdatePrice(ticker, currentPrice, tradeOpportunityService);
                     }
-                   
+
                 }
             }
             catch (Exception ex)
@@ -465,6 +463,61 @@ namespace TVBot.Utility
                 ClosedTrade = tradeExecution.Count(t => t.InTrade == false)
             };
             APIServices.SendToTeligrams("Total Trades: " + result.TotalTrades + " Repeated Trades: " + result.RepeatedTrades + " Non Repeated Trades: " + result.NonRepeatedTrades + " Total Invested Amount: " + result.TotalInvestAmount + " Running Profit Loss: " + result.RunningProfitLoss + " Booked Profit: " + result.BookedProfit + " Running Trades: " + result.RunningTrade + " Closed Trades: " + result.ClosedTrade);
+
+        }
+        public async static Task SendTodayTradeExecutinReport(ISQLServerServiceFactory tradeOpportunityService)
+        {
+            var today = DateTime.Today;
+            var tradeExecution = (await tradeOpportunityService.Create<TradeExecution>().GetAll()).ToList().Where(te => te.ExecutionDateTime >= today.Date);
+            var result = new
+            {
+                TotalTrades = tradeExecution.Count(),
+                RepeatedTrades = tradeExecution.Count(t => t.IsRepeatedTrade == true),
+                NonRepeatedTrades = tradeExecution.Count(t => t.IsRepeatedTrade == false),
+                TotalInvestAmount = (tradeExecution.Count(t => t.IsRepeatedTrade == false)) * 10000,
+                PercentRepeatedTrades = (tradeExecution.Count(t => t.IsRepeatedTrade == true) * 100.0 / tradeExecution.Count()),
+                RunningProfitLoss = tradeExecution.Where(t => t.InTrade == true).Sum(t => t.CurrentProfitLossOnTrade),
+                BookedProfit = tradeExecution.Where(t => t.InTrade == false).Sum(t => t.ProfitLoss),
+                RunningTrade = tradeExecution.Count(t => t.InTrade == true),
+                ClosedTrade = tradeExecution.Count(t => t.InTrade == false)
+            };
+            APIServices.SendToTeligrams("TradeExecutinReport:- Total Trades: " + result.TotalTrades + " Repeated Trades: " + result.RepeatedTrades + " Non Repeated Trades: " + result.NonRepeatedTrades + " Total Invested Amount: " + result.TotalInvestAmount + " Running Profit Loss: " + result.RunningProfitLoss + " Booked Profit: " + result.BookedProfit + " Running Trades: " + result.RunningTrade + " Closed Trades: " + result.ClosedTrade);
+
+
+        }
+        public async static Task SendTodayTradeCloseReport(ISQLServerServiceFactory tradeOpportunityService)
+        {
+            var today = DateTime.Today;
+            var tradeExecution = (await tradeOpportunityService.Create<TradeExecution>().GetAll()).ToList().Where(te => te.TradeCloseDateTime >= today.Date);
+            var result = new
+            {
+                TotalTrades = tradeExecution.Count(),
+                RepeatedTrades = tradeExecution.Count(t => t.IsRepeatedTrade == true),
+                NonRepeatedTrades = tradeExecution.Count(t => t.IsRepeatedTrade == false),
+                TotalInvestAmount = (tradeExecution.Count(t => t.IsRepeatedTrade == false)) * 10000,
+                PercentRepeatedTrades = (tradeExecution.Count(t => t.IsRepeatedTrade == true) * 100.0 / tradeExecution.Count()),
+                RunningProfitLoss = tradeExecution.Where(t => t.InTrade == true).Sum(t => t.CurrentProfitLossOnTrade),
+                BookedProfit = tradeExecution.Where(t => t.InTrade == false).Sum(t => t.ProfitLoss),
+                RunningTrade = tradeExecution.Count(t => t.InTrade == true),
+                ClosedTrade = tradeExecution.Count(t => t.InTrade == false)
+            };
+            APIServices.SendToTeligrams("TradeCloseReport:- Total Trades: " + result.TotalTrades + " Repeated Trades: " + result.RepeatedTrades + " Non Repeated Trades: " + result.NonRepeatedTrades + " Total Invested Amount: " + result.TotalInvestAmount + " Running Profit Loss: " + result.RunningProfitLoss + " Booked Profit: " + result.BookedProfit + " Running Trades: " + result.RunningTrade + " Closed Trades: " + result.ClosedTrade);
+
+
+        }
+        public async static Task UpdateStopLoss(ISQLServerServiceFactory tradeOpportunityService)
+        {
+            var today = DateTime.Today;
+
+            var tradesToUpdate = (await tradeOpportunityService.Create<TradeExecution>().GetAll()).ToList()
+                .Where(te => te.InTrade == true && te.ExecutionDateTime < today);
+
+            foreach (var trade in tradesToUpdate)
+            {
+                trade.StopLossPrice = trade.ExecutionPrice * 1.011m;
+                trade.TrargetPrice = trade.ExecutionPrice * 1.011m;
+                tradeOpportunityService.Create<TradeExecution>().Update(trade);
+            }
 
         }
     }

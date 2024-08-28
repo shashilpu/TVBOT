@@ -16,7 +16,7 @@ namespace TVBot
             var ema4HQueryFilePath = Path.Combine(queryFolderPath, "ema4HQuery.json");
             var ema1HQueryFilePath = Path.Combine(queryFolderPath, "ema1HQuery.json");
             var ema15MQueryFilePath = Path.Combine(queryFolderPath, "ema15MQuery.json");
-            var ema30MQueryFilePath = Path.Combine(queryFolderPath, "ema30MQuery.json");
+            var macd3MQueryFilePath = Path.Combine(queryFolderPath, "macd3MQuery.json");
             var ema2HQueryFilePath = Path.Combine(queryFolderPath, "ema2HQuery.json");
             var emaDQueryFilePath = Path.Combine(queryFolderPath, "emaDQuery.json");
             var emaWQueryFilePath = Path.Combine(queryFolderPath, "emaWBullishQuery.json");
@@ -41,6 +41,7 @@ namespace TVBot
             try
             {
                 await UtiityServices.SendReport(tradeOpportunityService);
+                await UtiityServices.UpdateStopLoss(tradeOpportunityService);
                 // run the below code in a loop when time is between 9:15 to 15:30
                 while (true)
                 {
@@ -58,6 +59,11 @@ namespace TVBot
                             // Thread.Sleep(10000);
                             UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
                         }
+                        if(count % 2 == 0)
+                        {
+                            await Task.Delay(10000);
+                            UtiityServices.MACD_3MReversal(macd3MQueryFilePath, tradeOpportunityService);
+                        }
                         if (count % 3 == 0)
                         {
                             await Task.Delay(10000);
@@ -67,13 +73,7 @@ namespace TVBot
                         {
                             await Task.Delay(10000);
                             UtiityServices.EMA15MReversal(ema15MQueryFilePath, tradeOpportunityService);
-                        }
-
-                        if (count % 8 == 0)
-                        {
-                            await Task.Delay(10000);
-                            UtiityServices.EMA30MReversal(ema30MQueryFilePath, tradeOpportunityService);
-                        }
+                        }                       
                         if (count % 13 == 0)
                         {
                             await Task.Delay(10000);
@@ -100,22 +100,26 @@ namespace TVBot
                         {
                             await Task.Delay(10000);
                             UtiityServices.EMAOneDayReversal(emaDQueryFilePath, tradeOpportunityService);
+                            await UtiityServices.SendTodayTradeCloseReport(tradeOpportunityService);
 
                         }
                         if (count % 33 == 0)
                         {
                             await Task.Delay(10000);
                             UtiityServices.MacdOneDayReversal(macdDQueryFilePath, tradeOpportunityService);
+                            await UtiityServices.SendTodayTradeExecutinReport(tradeOpportunityService);
                         }
                         if (count % 57 == 0)
                         {
                             await Task.Delay(10000);
                             UtiityServices.EMAOneWeekReversal(emaWQueryFilePath, tradeOpportunityService);
+                            await UtiityServices.SendReport(tradeOpportunityService);
                         }
                         if (count % 93 == 0)
                         {
                             await Task.Delay(10000);
                             UtiityServices.WeekDarvasBoxBullish(WeekDarvasBoxBullishQueryFilePath, tradeOpportunityService);
+                            await UtiityServices.SendReport(tradeOpportunityService);
                         }
                         if (count % 117 == 0)
                         {

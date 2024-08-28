@@ -87,6 +87,9 @@
     <None Update="JsonQuery\macd1HBullishQuery.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="JsonQuery\macd3MQuery.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="JsonQuery\macdDQuery.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

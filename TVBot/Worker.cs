@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using TVBot.Model.Entities;
 using TVBot.Services.Factory;
 using TVBot.Services.SqlServer;
+using TVBot.Utility;
 
 namespace TVBot
 {
@@ -18,12 +19,12 @@ namespace TVBot
             _sqlserviceFactory = sqlserviceFactory;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {           
+        {
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
-                {                 
-                  await  Start.Begin(_sqlserviceFactory,_logger);
+                {
+                    await Start.Begin(_sqlserviceFactory, _logger);
                     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                     await Task.Delay(DelayInMilliseconds, stoppingToken);
                 }
@@ -37,6 +38,10 @@ namespace TVBot
         }
         public override Task StopAsync(CancellationToken stoppingToken)
         {
+            UtiityServices.SendReport(_sqlserviceFactory);
+            UtiityServices.SendTodayTradeExecutinReport(_sqlserviceFactory);
+            UtiityServices.SendTodayTradeCloseReport(_sqlserviceFactory);
+
             _logger.LogError("Worker stopped at: {time}", DateTimeOffset.Now);
             return base.StopAsync(stoppingToken);
         }

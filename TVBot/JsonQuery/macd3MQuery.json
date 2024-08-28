@@ -14,12 +14,12 @@
     {
       "left": "volume",
       "operation": "greater",
-      "right": 500000
+      "right": 1000000
     },
     {
-      "left": "EMA5|1",
+      "left": "MACD.macd|3",
       "operation": "crosses_above",
-      "right": "EMA9|1"
+      "right": "MACD.signal|3"
     }
   ],
   "ignore_unknown_fields": false,

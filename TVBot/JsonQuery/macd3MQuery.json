@@ -5,12 +5,7 @@
       "left": "exchange",
       "operation": "in_range",
       "right": [ "NSE" ]
-    },
-    {
-      "left": "close|1W",
-      "operation": "below%",
-      "right": [ "high|1W", 0.95 ]
-    },
+    },    
     {
       "left": "volume",
       "operation": "greater",

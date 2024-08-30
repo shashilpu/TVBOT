@@ -188,7 +188,7 @@ namespace TVBot.Utility
                                     _message = " Last CrossOver.= " + lastTradeOpportunityExceptToday.CrossOverDateTime + " Price.= " + lastTradeOpportunityExceptToday.Price + " Vol.= " + lastTradeOpportunityExceptToday.Volume + " M AlgoN.= " + lastTradeOpportunityExceptToday.AlgoName + " TO.Id.= " + lastTradeOpportunityExceptToday.Id;
                                     Message += _message;
                                     // check if price is bewtween 3 and 30 % down of lastTradeOpportunityExceptToday.Price(last crossover price).
-                                    if (price < lastTradeOpportunityExceptToday.Price * 0.97m)
+                                    if (price < lastTradeOpportunityExceptToday.Price * 0.98m)
                                     {
                                         Message += " #<b>Probable Bottom Pattern</b>#";
                                         Message = "💚" + Message;

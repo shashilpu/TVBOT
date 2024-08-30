@@ -49,7 +49,7 @@ namespace TVBot
                     var startTime = new TimeSpan(9, 15, 01);
                     var endTime = new TimeSpan(15, 29, 30);
                     var tradeCurrentTime = DateTime.Now.TimeOfDay;
-                    var tradeStartTime = new TimeSpan(9, 15, 01);
+                    var tradeStartTime = new TimeSpan(11, 00, 01);
                     var tradeEndTime = new TimeSpan(15, 29, 30);
 
                     if (currentTime >= startTime && currentTime <= endTime && DateTime.Today.DayOfWeek != DayOfWeek.Saturday && DateTime.Today.DayOfWeek != DayOfWeek.Sunday)

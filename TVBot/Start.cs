@@ -41,7 +41,7 @@ namespace TVBot
             var allNSEStockPriceQuery = Path.Combine(allNSEStockQueryFilePath, "allNSEStockPriceQuery.json");
             try
             {
-                var niftytimer = new System.Timers.Timer(10 * 60 * 1000);
+                var niftytimer = new System.Timers.Timer(01 * 60 * 1000);
 
                 niftytimer.Elapsed += async (sender, e) =>
                 {
@@ -50,7 +50,7 @@ namespace TVBot
 
 
                 niftytimer.Start();
-                var banktimer = new System.Timers.Timer(20 * 60 * 1000);
+                var banktimer = new System.Timers.Timer(10 * 60 * 1000);
 
                 banktimer.Elapsed += async (sender, e) =>
                 {

@@ -1,4 +1,6 @@
 ﻿using Serilog;
+using System.Text.Json;
+using TVBot.Model;
 using TVBot.Model.Entities;
 using TVBot.Models;
 using TVBot.Services;
@@ -520,6 +522,39 @@ namespace TVBot.Utility
             }
 
         }
+        public static async Task SendNiftyNewsToTeligram(ISQLServerServiceFactory tradeOpportunityService)
+        {
+            var TVNewsUpdate = (await tradeOpportunityService.Create<NewsPublishedTime>().GetById(1));
+            string url = "https://news-headlines.tradingview.com/v2/view/headlines/symbol?client=web&lang=en&section=&streaming=true&symbol=NSE%3ANIFTY";
+            var result = await APIServices.GetCurrentNews(url);
+            if (result.items[0].published > TVNewsUpdate.NSENIFTYPublishedTime)
+            {
+
+                TVNewsUpdate.NSENIFTYPublishedTime = result.items[0].published;
+                tradeOpportunityService.Create<NewsPublishedTime>().Update(TVNewsUpdate);
+                string json = JsonSerializer.Serialize(result.items[0]);
+                APIServices.SendToTeligrams(json);
+                
+            }
+           
+        }
+        public static async Task SendNiftyBankNewsToTeligram(ISQLServerServiceFactory tradeOpportunityService)
+        {
+            var TVNewsUpdate = (await tradeOpportunityService.Create<NewsPublishedTime>().GetById(1));
+            string url = "https://news-headlines.tradingview.com/v2/view/headlines/symbol?client=web&lang=en&section=&streaming=true&symbol=NSE%3ABANKNIFTY";
+            var result = await APIServices.GetCurrentNews(url);
+            if (result.items[0].published > TVNewsUpdate.NSEBankNIFTYPublishedTime)
+            {
+
+                TVNewsUpdate.NSEBankNIFTYPublishedTime = result.items[0].published;
+                tradeOpportunityService.Create<NewsPublishedTime>().Update(TVNewsUpdate);
+                string json = JsonSerializer.Serialize(result.items[0]);
+                APIServices.SendToTeligrams(json);
+               
+            }
+
+        }
+
     }
 }
 

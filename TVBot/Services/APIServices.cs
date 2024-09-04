@@ -117,9 +117,9 @@ namespace TVBot.Services
             }
         }
         // write a get method to get the data from the api url is https://www.nseindia.com/api/quote-equity?symbol=CIPLA
-        public static async Task<MCPriceInfo> GetCurrentPrices(string scIdList, string scId)
+        public static async Task<TVNews> GetCurrentNews(string url)
         {
-            string url = $"https://api.moneycontrol.com/mcapi/v1/stock/get-stock-price?scIdList={scIdList}&scId={scId}";// + ticker;
+          
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -131,7 +131,7 @@ namespace TVBot.Services
                     response.EnsureSuccessStatusCode();
                     //string responseBody = await response.Content.ReadAsStringAsync();
                     //return responseBody;
-                    var searchResponse = await JsonSerializer.DeserializeAsync<MCPriceInfo>(response.Content.ReadAsStream(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var searchResponse = await JsonSerializer.DeserializeAsync<TVNews>(response.Content.ReadAsStream(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     return searchResponse;
                 }
                 catch (Exception ex)

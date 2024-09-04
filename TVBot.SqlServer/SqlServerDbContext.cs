@@ -13,23 +13,12 @@ namespace TVBot.SqlServer
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-           // modelBuilder.ApplyConfiguration(new TickerInfoConfiguration());
+           modelBuilder.ApplyConfiguration(new NewsPublishedTimesConfiguration());
             modelBuilder.ApplyConfiguration(new TradeOpportunityConfiguration());
-            modelBuilder.ApplyConfiguration(new TradeExecutionConfiguration());
-
-            //modelBuilder.Entity<TickerInfo>()
-            //    .Property(e => e.TickerInfoId)
-            //    .UseIdentityColumn(1, 1);            
-
-            //modelBuilder.Entity<TradeOpportunity>()
-            //    .Property(e => e.Id)
-            //    .UseIdentityColumn(1, 1);
-
-            //modelBuilder.Entity<TradeExecution>()
-            //    .Property(e => e.TradeExecutionId)
-            //    .UseIdentityColumn(1, 1);
+            modelBuilder.ApplyConfiguration(new TradeExecutionConfiguration());           
+           
         }
-       // DbSet<TickerInfo> TickerInfos { get; set; }      
+        DbSet<NewsPublishedTime> NewsPublishedTimes { get; set; }
         DbSet<TradeOpportunity> Tradeopportunities { get; set; }
         DbSet<TradeExecution> TradeExecutions { get; set; }
     }

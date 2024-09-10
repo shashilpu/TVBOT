@@ -10,6 +10,7 @@ namespace TVBot.Model.Entities
     {
         public int Id { get; set; }
         public int NSENIFTYPublishedTime { get; set; }
-        public int NSEBankNIFTYPublishedTime { get; set; }        
+        public int NSEBankNIFTYPublishedTime { get; set; }
+        public DateTime? LastUpdatedTime { get; set; } = DateTime.Now;
     }
 }

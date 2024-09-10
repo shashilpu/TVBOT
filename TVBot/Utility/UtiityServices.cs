@@ -527,30 +527,32 @@ namespace TVBot.Utility
             var TVNewsUpdate = (await tradeOpportunityService.Create<NewsPublishedTime>().GetById(1));
             string url = "https://news-headlines.tradingview.com/v2/view/headlines/symbol?client=web&lang=en&section=&streaming=true&symbol=NSE%3ANIFTY";
             var result = await APIServices.GetCurrentNews(url);
-            if (DateTimeOffset.FromUnixTimeSeconds(result.items[0].published).DateTime > DateTimeOffset.FromUnixTimeSeconds(TVNewsUpdate.NSENIFTYPublishedTime).DateTime)
+            if (result.items[0].published != TVNewsUpdate.NSENIFTYPublishedTime)
             {
 
                 TVNewsUpdate.NSENIFTYPublishedTime = result.items[0].published;
+                TVNewsUpdate.LastUpdatedTime = DateTime.Now;
                 tradeOpportunityService.Create<NewsPublishedTime>().Update(TVNewsUpdate);
                 string json = JsonSerializer.Serialize(result.items[0]);
                 APIServices.SendToTeligrams(json);
-                
+
             }
-           
+
         }
         public static async Task SendNiftyBankNewsToTeligram(ISQLServerServiceFactory tradeOpportunityService)
         {
             var TVNewsUpdate = (await tradeOpportunityService.Create<NewsPublishedTime>().GetById(1));
             string url = "https://news-headlines.tradingview.com/v2/view/headlines/symbol?client=web&lang=en&section=&streaming=true&symbol=NSE%3ABANKNIFTY";
             var result = await APIServices.GetCurrentNews(url);
-            if (DateTimeOffset.FromUnixTimeSeconds(result.items[0].published).DateTime> DateTimeOffset.FromUnixTimeSeconds(TVNewsUpdate.NSEBankNIFTYPublishedTime).DateTime)
+            if (result.items[0].published != TVNewsUpdate.NSEBankNIFTYPublishedTime)
             {
 
                 TVNewsUpdate.NSEBankNIFTYPublishedTime = result.items[0].published;
+                TVNewsUpdate.LastUpdatedTime = DateTime.Now;
                 tradeOpportunityService.Create<NewsPublishedTime>().Update(TVNewsUpdate);
                 string json = JsonSerializer.Serialize(result.items[0]);
                 APIServices.SendToTeligrams(json);
-               
+
             }
 
         }

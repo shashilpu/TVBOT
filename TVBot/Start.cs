@@ -46,6 +46,7 @@ namespace TVBot
                 niftytimer.Elapsed += async (sender, e) =>
                 {
                     await UtiityServices.SendNiftyNewsToTeligram(tradeOpportunityService);
+                    await Task.Delay(50000);
                 };
 
 
@@ -55,6 +56,7 @@ namespace TVBot
                 banktimer.Elapsed += async (sender, e) =>
                 {
                     await UtiityServices.SendNiftyBankNewsToTeligram(tradeOpportunityService);
+                    await Task.Delay(50000);
                 };
 
 

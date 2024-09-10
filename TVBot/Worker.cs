@@ -38,9 +38,9 @@ namespace TVBot
         }
         public override Task StopAsync(CancellationToken stoppingToken)
         {
-            UtiityServices.SendReport(_sqlserviceFactory);
-            UtiityServices.SendTodayTradeExecutinReport(_sqlserviceFactory);
-            UtiityServices.SendTodayTradeCloseReport(_sqlserviceFactory);
+            //UtiityServices.SendReport(_sqlserviceFactory);
+            //UtiityServices.SendTodayTradeExecutinReport(_sqlserviceFactory);
+            //UtiityServices.SendTodayTradeCloseReport(_sqlserviceFactory);
 
             _logger.LogError("Worker stopped at: {time}", DateTimeOffset.Now);
             return base.StopAsync(stoppingToken);

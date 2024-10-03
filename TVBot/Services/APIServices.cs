@@ -9,8 +9,8 @@ namespace TVBot.Services
 {
     public static class APIServices
     {
-        private static readonly string botToken = "7481766478:AAE9SU9K15g09fTE3iAwQdQWz_5ADyvMoG4";
-        private static readonly string chatId = "6583697962";
+        private static readonly string botToken = "7485766478:BBE9SU9K15g09fTE3iAwQdQWz_5ADyvMoG4";
+        private static readonly string chatId = "6183697962";
         public static async Task<SearchResponse> Screener(string queryFilePath)
         {
             SearchResponse searchResponse = new SearchResponse();

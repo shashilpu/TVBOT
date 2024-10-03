@@ -12,10 +12,10 @@ const observer = new MutationObserver((mutations) => {
                 const rowKey = node.getAttribute('data-rowkey');
                 if (rowKey && !previousRowKeys.has(rowKey)) {
                     // New element with a unique data-rowkey added to the <tbody>
-					const chatId = "6583697962"; // Replace with your actual chat ID
+					const chatId = "6183697962"; // Replace with your actual chat ID
 
 
-const apiUrl = `https://api.telegram.org/bot7481766478:AAE9SU9K15g09fTE3iAwQdQWz_5ADyvMoG4/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(rowKey)}`;
+const apiUrl = `https://api.telegram.org/bot7485766478:BBE9SU9K15g09fTE3iAwQdQWz_5ADyvMoG4/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(rowKey)}`;
 
 // Make an HTTP request to send the message
 fetch(apiUrl)

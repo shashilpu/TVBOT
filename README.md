@@ -50,8 +50,5 @@ Welcome to the TradingView Bot repository! This project is a comprehensive tradi
 
 ## Contact
 
-For any questions or support, please open an issue or contact the repository owner.
+For any questions or support, please open an issue or contact If you need any more help, just let me know.@shashilpu@gmail.com 😊
 
----
-
-Feel free to customize this README further to suit your project's needs! If you need any more help, just let me know.@shashilpu@gmail.com 😊

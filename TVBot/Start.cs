@@ -41,55 +41,55 @@ namespace TVBot
             var allNSEStockPriceQuery = Path.Combine(allNSEStockQueryFilePath, "allNSEStockPriceQuery.json");
             try
             {
-                var niftytimer = new System.Timers.Timer(01 * 60 * 1000);
+                //var niftytimer = new System.Timers.Timer(01 * 60 * 1000);
 
-                niftytimer.Elapsed += async (sender, e) =>
-                {
-                    await UtiityServices.SendNiftyNewsToTeligram(tradeOpportunityService);
-                    await Task.Delay(50000);
-                };
-
-
-                niftytimer.Start();
-                var banktimer = new System.Timers.Timer(10 * 60 * 1000);
-
-                banktimer.Elapsed += async (sender, e) =>
-                {
-                    await UtiityServices.SendNiftyBankNewsToTeligram(tradeOpportunityService);
-                    await Task.Delay(50000);
-                };
+                //niftytimer.Elapsed += async (sender, e) =>
+                //{
+                //    await UtiityServices.SendNiftyNewsToTeligram(tradeOpportunityService);
+                //    await Task.Delay(50000);
+                //};
 
 
-                banktimer.Start();
+                //niftytimer.Start();
+                //var banktimer = new System.Timers.Timer(10 * 60 * 1000);
 
-               
-               
+                //banktimer.Elapsed += async (sender, e) =>
+                //{
+                //    await UtiityServices.SendNiftyBankNewsToTeligram(tradeOpportunityService);
+                //    await Task.Delay(50000);
+                //};
+
+
+                //banktimer.Start();
+
+
+
                 //  await UtiityServices.SendReport(tradeOpportunityService);
                 // await UtiityServices.UpdateStopLoss(tradeOpportunityService);
                 // run the below code in a loop when time is between 9:15 to 15:30
-                //while (true)
-                //{
-                //    var currentTime = DateTime.Now.TimeOfDay;
-                //    var startTime = new TimeSpan(8, 15, 01);
-                //    var endTime = new TimeSpan(15, 29, 30);
-                //    var tradeCurrentTime = DateTime.Now.TimeOfDay;
-                //    var tradeStartTime = new TimeSpan(8, 15, 01);
-                //    var tradeEndTime = new TimeSpan(15, 29, 30);
+                while (true)
+                {
+                    var currentTime = DateTime.Now.TimeOfDay;
+                    var startTime = new TimeSpan(8, 15, 01);
+                    var endTime = new TimeSpan(15, 29, 30);
+                    var tradeCurrentTime = DateTime.Now.TimeOfDay;
+                    var tradeStartTime = new TimeSpan(8, 15, 01);
+                    var tradeEndTime = new TimeSpan(15, 29, 30);
 
-                //    if (currentTime >= startTime && currentTime <= endTime && DateTime.Today.DayOfWeek != DayOfWeek.Saturday && DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
-                //    {
-                //        if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
-                //        {
-                //            // Thread.Sleep(10000);
-                //           // UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
-                         
-                //        }
-                //        if (count % 2 == 0)
-                //        {
-                //            await Task.Delay(10000);
-                //            //UtiityServices.MACD_3MReversal(macd3MQueryFilePath, tradeOpportunityService);
-                         
-                //        }
+                    if (currentTime >= startTime && currentTime <= endTime && DateTime.Today.DayOfWeek != DayOfWeek.Saturday && DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
+                    {
+                        if (tradeCurrentTime >= tradeStartTime && tradeCurrentTime <= tradeEndTime)
+                        {
+                            Thread.Sleep(10000);
+                            UtiityServices.EMA1MReversal(ema1MQueryFilePath, tradeOpportunityService);
+
+                        }
+                        //        if (count % 2 == 0)
+                        //        {
+                        //            await Task.Delay(10000);
+                        //            //UtiityServices.MACD_3MReversal(macd3MQueryFilePath, tradeOpportunityService);
+
+                        //        }
                         //if (count % 3 == 0)
                         //{
                         //    await Task.Delay(10000);
@@ -176,18 +176,18 @@ namespace TVBot
 
                         // DownCrossing.MacdOneDayReversal(macdDQueryFilePathBearish, tradeOpportunityService);
 
-                      //  await Task.Delay(10000);
-                      //  await UtiityServices.GetCurrentPriceAllNSEStockAndCloseOpenTrades(tradeOpportunityService, allNSEStockPriceQuery);
+                        //  await Task.Delay(10000);
+                        //  await UtiityServices.GetCurrentPriceAllNSEStockAndCloseOpenTrades(tradeOpportunityService, allNSEStockPriceQuery);
                         //  UtiityServices.OneMin5_9EMADownwardCrossOver(ema1MQueryFilePathBearish, tradeOpportunityService);
 
 
 
-                   // }
+                    }
                     await Task.Delay(10000);
-                  //  count++;
-                  //  Console.WriteLine("Count: " + count);
+                    //  count++;
+                    //  Console.WriteLine("Count: " + count);
 
-               // }
+                }
             }
             catch (Exception ex)
             {
